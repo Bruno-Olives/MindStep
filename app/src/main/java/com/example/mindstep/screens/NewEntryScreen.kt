@@ -25,12 +25,15 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.filled.ArrowBackIosNew
 import androidx.compose.material.icons.filled.SentimentNeutral
 import androidx.compose.material.icons.filled.SentimentVeryDissatisfied
 import androidx.compose.material.icons.filled.SentimentSatisfiedAlt
 import androidx.compose.material3.CardDefaults
+import androidx.compose.material3.IconButton
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
+import androidx.compose.ui.draw.rotate
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.semantics.LiveRegionMode
 import androidx.compose.ui.semantics.liveRegion
@@ -158,20 +161,42 @@ fun EntryCard (title : String, description: String, labels: List<String>, value:
                 Column (
                     horizontalAlignment = Alignment.CenterHorizontally,
                 ){
-                    @OptIn(ExperimentalMaterial3Api::class)
-                    Slider(
-                        value = value.toFloat(),
-                        onValueChange = { setValue(it.toInt()) },
-                        valueRange = 1f..5f,
-                        steps = 3,
-                        thumb = {
-                            Box(
-                                modifier = Modifier
-                                    .size(20.dp)
-                                    .background(MaterialTheme.colorScheme.primary, CircleShape)
+                    Row (
+                        verticalAlignment = Alignment.CenterVertically,
+                        horizontalArrangement = Arrangement.spacedBy(8.dp),
+                        modifier = Modifier.fillMaxWidth()
+                    ) {
+                        IconButton(
+                            onClick = { if (value > 1) setValue(value - 1) },
+                            modifier = Modifier.size(24.dp)
+                        ) {
+                            Icon(Icons.Default.ArrowBackIosNew, contentDescription = "Diminuir")
+                        }
+                        @OptIn(ExperimentalMaterial3Api::class)
+                        Slider(
+                            value = value.toFloat(),
+                            onValueChange = { setValue(it.toInt()) },
+                            valueRange = 1f..5f,
+                            steps = 3,
+                            modifier = Modifier.weight(1f),
+                            thumb = {
+                                Box(
+                                    modifier = Modifier
+                                        .size(20.dp)
+                                        .background(MaterialTheme.colorScheme.primary, CircleShape)
+                                )
+                            }
+                        )
+                        IconButton(
+                            onClick = { if (value < 5) setValue(value + 1) },
+                            modifier = Modifier.size(24.dp)
+                        ) {
+                            Icon(Icons.Default.ArrowBackIosNew,
+                                contentDescription = "Aumentar",
+                                modifier = Modifier.rotate(180f)
                             )
                         }
-                    )
+                    }
                     Text(text = labels[value - 1], fontWeight = FontWeight.ExtraBold)
                 }
             }
