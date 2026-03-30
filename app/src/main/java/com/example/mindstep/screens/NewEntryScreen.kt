@@ -3,6 +3,7 @@ package com.example.mindstep.screens
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
@@ -12,6 +13,8 @@ import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.Box
+import androidx.compose.foundation.rememberScrollState
+import androidx.compose.foundation.verticalScroll
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.material3.Card
 import androidx.compose.material3.MaterialTheme
@@ -29,8 +32,11 @@ import androidx.compose.material.icons.filled.ArrowBackIosNew
 import androidx.compose.material.icons.filled.SentimentNeutral
 import androidx.compose.material.icons.filled.SentimentVeryDissatisfied
 import androidx.compose.material.icons.filled.SentimentSatisfiedAlt
+import androidx.compose.material.icons.filled.Mic
 import androidx.compose.material3.CardDefaults
 import androidx.compose.material3.IconButton
+import androidx.compose.material3.OutlinedButton
+import androidx.compose.runtime.mutableIntStateOf
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.ui.draw.rotate
@@ -40,6 +46,11 @@ import androidx.compose.ui.semantics.liveRegion
 import androidx.compose.ui.semantics.semantics
 import androidx.compose.ui.text.font.FontWeight
 import com.example.mindstep.composables.TextInput
+import androidx.core.graphics.toColorInt
+import androidx.compose.material3.TextField
+import androidx.compose.material3.TextFieldDefaults
+import androidx.compose.foundation.shape.RoundedCornerShape
+import androidx.compose.ui.text.TextStyle
 
 private val moodLabels = listOf("Muito mal", "Mal", "Neutro", "Bem", "Muito bem")
 private val anxietyLabels = listOf("Muito baixa", "Baixa", "Moderada", "Alta", "Muito alta")
@@ -47,17 +58,19 @@ private val valueColors = listOf("#c10007", "#ca3500", "#a65f00", "#497d00", "#0
 
 @Composable
 fun NewEntryScreen() {
-    val (mood, setMood) = remember { mutableStateOf(3) }
-    val (anxiety, setAnxiety) = remember { mutableStateOf(3) }
+    val (mood, setMood) = remember { mutableIntStateOf(3) }
+    val (anxiety, setAnxiety) = remember { mutableIntStateOf(3) }
     val (sleep, setSleep) = remember { mutableStateOf("8") }
     val (steps, setSteps) = remember { mutableStateOf("5000") }
     val (waterGlasses, setWaterGlasses) = remember { mutableStateOf("6") }
+    val notes = remember { mutableStateOf("") }
 
     Column(
         verticalArrangement = Arrangement.spacedBy(8.dp),
         modifier = Modifier
             .fillMaxSize()
             .padding(16.dp)
+            .verticalScroll(rememberScrollState())
     ) {
         EntryCard(
             title = "Como está o seu humor?",
@@ -105,7 +118,73 @@ fun NewEntryScreen() {
                 )
             }
         }
-
+        Card (
+            elevation = CardDefaults.cardElevation(8.dp),
+            modifier = Modifier.fillMaxWidth()
+        ) {
+            Column(
+                verticalArrangement = Arrangement.spacedBy(16.dp),
+                modifier = Modifier
+                    .background(Color.White)
+                    .padding(16.dp)
+                    .fillMaxWidth()
+            ) {
+                Row (
+                    modifier = Modifier.fillMaxWidth(),
+                    horizontalArrangement = Arrangement.SpaceBetween,
+                    verticalAlignment = Alignment.CenterVertically
+                ) {
+                    Text(
+                        text = "Notas (opcional)",
+                        style = MaterialTheme.typography.labelLarge,
+                        fontWeight = FontWeight.ExtraBold
+                    )
+                    OutlinedButton(
+                        onClick = { /* TODO */ },
+                        contentPadding = PaddingValues(horizontal = 12.dp, vertical = 0.dp),
+                        modifier = Modifier.height(36.dp)
+                    ) {
+                        Icon(
+                            imageVector = Icons.Default.Mic,
+                            contentDescription = "Voz",
+                            tint = Color.Black,
+                            modifier = Modifier.size(18.dp)
+                        )
+                        Spacer(modifier = Modifier.width(6.dp))
+                        Text(
+                            text = "Voz",
+                            color = Color.Black,
+                            fontWeight = FontWeight.Bold
+                        )
+                    }
+                }
+                Column{
+                    TextField(
+                        value = notes.value,
+                        onValueChange = { notes.value = it },
+                        minLines = 3,
+                        maxLines = 5,
+                        placeholder = { Text("Adicione observaçoes sobre o seu dia...", color = Color.Gray) },
+                        textStyle = TextStyle(color = Color.Black),
+                        modifier = Modifier.fillMaxWidth(),
+                        shape = RoundedCornerShape(8.dp),
+                        colors = TextFieldDefaults.colors(
+                            focusedContainerColor = Color(0xFFF3F4F6),
+                            unfocusedContainerColor = Color(0xFFF3F4F6),
+                            focusedIndicatorColor = Color.Transparent,
+                            unfocusedIndicatorColor = Color.Transparent,
+                            disabledIndicatorColor = Color.Transparent
+                        )
+                    )
+                    Spacer(modifier = Modifier.height(4.dp))
+                    Text(
+                        text = "Partilhe pensamentos, eventos ou observações relevantes",
+                        style = MaterialTheme.typography.labelMedium,
+                        color = Color.Gray
+                    )
+                }
+            }
+        }
     }
 }
 
@@ -142,7 +221,7 @@ fun EntryCard (title : String, description: String, labels: List<String>, value:
                     colors = CardDefaults.cardColors(containerColor = Color.Transparent),
                     modifier = Modifier
                         .background(
-                            Color(android.graphics.Color.parseColor(valueColors[value - 1])).copy(
+                            Color(valueColors[value - 1].toColorInt()).copy(
                                 alpha = 0.1f
                             ),
                             shape = MaterialTheme.shapes.small
@@ -155,7 +234,7 @@ fun EntryCard (title : String, description: String, labels: List<String>, value:
                         else Icons.Default.SentimentNeutral,
                         contentDescription = labels[value - 1],
                         Modifier.size(30.dp),
-                        tint = Color(android.graphics.Color.parseColor(valueColors[value - 1])))
+                        tint = Color(valueColors[value - 1].toColorInt()))
                 }
                 Spacer(modifier = Modifier.width(16.dp))
                 Column (
