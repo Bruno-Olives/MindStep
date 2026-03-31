@@ -1,5 +1,12 @@
 package com.example.mindstep.screens
 
+import android.app.Activity
+import android.content.ActivityNotFoundException
+import android.content.Intent
+import android.speech.RecognizerIntent
+import android.widget.Toast
+import androidx.activity.compose.rememberLauncherForActivityResult
+import androidx.activity.result.contract.ActivityResultContracts
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
@@ -43,6 +50,7 @@ import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.ui.draw.rotate
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.semantics.LiveRegionMode
 import androidx.compose.ui.semantics.liveRegion
 import androidx.compose.ui.semantics.semantics
@@ -53,6 +61,7 @@ import androidx.compose.material3.TextField
 import androidx.compose.material3.TextFieldDefaults
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.ui.text.TextStyle
+import java.util.Locale
 
 private val moodLabels = listOf("Muito mal", "Mal", "Neutro", "Bem", "Muito bem")
 private val anxietyLabels = listOf("Muito baixa", "Baixa", "Moderada", "Alta", "Muito alta")
@@ -66,13 +75,48 @@ fun NewEntryScreen() {
     val (steps, setSteps) = remember { mutableStateOf("5000") }
     val (waterGlasses, setWaterGlasses) = remember { mutableStateOf("6") }
     val notes = remember { mutableStateOf("") }
+    val context = LocalContext.current
+
+    val speechLauncher = rememberLauncherForActivityResult(
+        contract = ActivityResultContracts.StartActivityForResult()
+    ) { result ->
+        if (result.resultCode == Activity.RESULT_OK) {
+            val spokenText = result.data
+                ?.getStringArrayListExtra(RecognizerIntent.EXTRA_RESULTS)
+                ?.firstOrNull()
+                ?.trim()
+                .orEmpty()
+            if (spokenText.isNotEmpty()) {
+                notes.value = spokenText
+            }
+        }
+    }
+
+    val recordAudioPermissionLauncher = rememberLauncherForActivityResult(
+        contract = ActivityResultContracts.RequestPermission()
+    ) { isGranted ->
+        if (isGranted) {
+            val speechIntent = Intent(RecognizerIntent.ACTION_RECOGNIZE_SPEECH).apply {
+                putExtra(RecognizerIntent.EXTRA_LANGUAGE_MODEL, RecognizerIntent.LANGUAGE_MODEL_FREE_FORM)
+                putExtra(RecognizerIntent.EXTRA_LANGUAGE, Locale.getDefault())
+                putExtra(RecognizerIntent.EXTRA_PROMPT, "Fale agora")
+            }
+            try {
+                speechLauncher.launch(speechIntent)
+            } catch (_: ActivityNotFoundException) {
+                Toast.makeText(context, "Reconhecimento de voz não disponível neste dispositivo.", Toast.LENGTH_SHORT).show()
+            }
+        } else {
+            Toast.makeText(context, "Permissão de microfone negada.", Toast.LENGTH_SHORT).show()
+        }
+    }
 
     fun save (){
         // TODO: Implementar lógica de armazenamento dos dados
     }
 
     fun voiceRecord() {
-        // TODO: Implementar lógica de gravação por voz
+        recordAudioPermissionLauncher.launch(android.Manifest.permission.RECORD_AUDIO)
     }
 
     Column(
