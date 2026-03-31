@@ -104,7 +104,21 @@ fun MindStepApp() {
                 composable(MainDestinations.DASHBOARD.route) { HomeScreen() }
                 composable(MainDestinations.HISTORY.route) { HistoryScreen() }
                 composable(MainDestinations.CONFIG.route) { ConfigScreen() }
-                composable(AppScreen.NewEntry.route) { NewEntryScreen() }
+                composable(AppScreen.NewEntry.route) {
+                    NewEntryScreen(
+                        onSaveSuccess = {
+                            val returnedToDashboard = navController.popBackStack(
+                                MainDestinations.DASHBOARD.route,
+                                inclusive = false
+                            )
+                            if (!returnedToDashboard) {
+                                navController.navigate(MainDestinations.DASHBOARD.route) {
+                                    launchSingleTop = true
+                                }
+                            }
+                        }
+                    )
+                }
             }
         }
     }

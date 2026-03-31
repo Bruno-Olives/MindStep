@@ -73,7 +73,7 @@ private val anxietyLabels = listOf("Muito baixa", "Baixa", "Moderada", "Alta", "
 private val valueColors = listOf("#c10007", "#ca3500", "#a65f00", "#497d00", "#008236")
 
 @Composable
-fun NewEntryScreen() {
+fun NewEntryScreen(onSaveSuccess: () -> Unit = {}) {
     val (mood, setMood) = remember { mutableIntStateOf(3) }
     val (anxiety, setAnxiety) = remember { mutableIntStateOf(3) }
     val (sleep, setSleep) = remember { mutableStateOf("8") }
@@ -143,6 +143,7 @@ fun NewEntryScreen() {
             runCatching { entryDao.insert(entry) }
                 .onSuccess {
                     Toast.makeText(context, "Entrada guardada com sucesso.", Toast.LENGTH_SHORT).show()
+                    onSaveSuccess()
                 }
                 .onFailure {
                     Toast.makeText(context, "Erro ao guardar entrada.", Toast.LENGTH_SHORT).show()
