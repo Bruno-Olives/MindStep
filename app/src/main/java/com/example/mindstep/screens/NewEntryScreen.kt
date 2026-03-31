@@ -33,9 +33,11 @@ import androidx.compose.material.icons.filled.SentimentNeutral
 import androidx.compose.material.icons.filled.SentimentVeryDissatisfied
 import androidx.compose.material.icons.filled.SentimentSatisfiedAlt
 import androidx.compose.material.icons.filled.Mic
+import androidx.compose.material.icons.filled.Save
 import androidx.compose.material3.CardDefaults
 import androidx.compose.material3.IconButton
 import androidx.compose.material3.OutlinedButton
+import androidx.compose.material3.Button
 import androidx.compose.runtime.mutableIntStateOf
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
@@ -65,12 +67,20 @@ fun NewEntryScreen() {
     val (waterGlasses, setWaterGlasses) = remember { mutableStateOf("6") }
     val notes = remember { mutableStateOf("") }
 
+    fun save (){
+        // TODO: Implementar lógica de armazenamento dos dados
+    }
+
+    fun voiceRecord() {
+        // TODO: Implementar lógica de gravação por voz
+    }
+
     Column(
-        verticalArrangement = Arrangement.spacedBy(8.dp),
+        verticalArrangement = Arrangement.spacedBy(16.dp),
         modifier = Modifier
             .fillMaxSize()
-            .padding(16.dp)
             .verticalScroll(rememberScrollState())
+            .padding(16.dp)
     ) {
         EntryCard(
             title = "Como está o seu humor?",
@@ -140,7 +150,7 @@ fun NewEntryScreen() {
                         fontWeight = FontWeight.ExtraBold
                     )
                     OutlinedButton(
-                        onClick = { /* TODO */ },
+                        onClick = { voiceRecord() },
                         contentPadding = PaddingValues(horizontal = 12.dp, vertical = 0.dp),
                         modifier = Modifier.height(36.dp)
                     ) {
@@ -184,6 +194,24 @@ fun NewEntryScreen() {
                     )
                 }
             }
+        }
+        Button(
+            onClick = { save() },
+            shape = RoundedCornerShape(8.dp),
+            modifier = Modifier.height(46.dp).fillMaxWidth()
+        ) {
+            Icon(
+                imageVector = Icons.Default.Save,
+                contentDescription = "Guardar",
+                tint = Color.White,
+                modifier = Modifier.size(18.dp)
+            )
+            Spacer(modifier = Modifier.width(6.dp))
+            Text(
+                text = "Guardar Entrada",
+                color = Color.White,
+                fontWeight = FontWeight.Bold
+            )
         }
     }
 }
