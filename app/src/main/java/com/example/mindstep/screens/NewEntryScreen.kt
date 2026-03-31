@@ -8,6 +8,7 @@ import android.widget.Toast
 import androidx.activity.compose.rememberLauncherForActivityResult
 import androidx.activity.result.contract.ActivityResultContracts
 import androidx.compose.foundation.background
+import androidx.compose.foundation.border
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.PaddingValues
@@ -129,6 +130,7 @@ fun NewEntryScreen() {
         }
 
         val entry = EntryEntity(
+            createdAt = System.currentTimeMillis(),
             mood = mood,
             anxiety = anxiety,
             sleep = sleepValue,
@@ -181,7 +183,6 @@ fun NewEntryScreen() {
             Column(
                 verticalArrangement = Arrangement.spacedBy(16.dp),
                 modifier = Modifier
-                    .background(Color.White)
                     .padding(16.dp)
                     .fillMaxWidth()
             ) {
@@ -212,7 +213,6 @@ fun NewEntryScreen() {
             Column(
                 verticalArrangement = Arrangement.spacedBy(16.dp),
                 modifier = Modifier
-                    .background(Color.White)
                     .padding(16.dp)
                     .fillMaxWidth()
             ) {
@@ -234,13 +234,13 @@ fun NewEntryScreen() {
                         Icon(
                             imageVector = Icons.Default.Mic,
                             contentDescription = "Voz",
-                            tint = Color.Black,
+                            tint = MaterialTheme.colorScheme.onSurface,
                             modifier = Modifier.size(18.dp)
                         )
                         Spacer(modifier = Modifier.width(6.dp))
                         Text(
                             text = "Voz",
-                            color = Color.Black,
+                            color = MaterialTheme.colorScheme.onSurface,
                             fontWeight = FontWeight.Bold
                         )
                     }
@@ -251,23 +251,36 @@ fun NewEntryScreen() {
                         onValueChange = { notes.value = it },
                         minLines = 3,
                         maxLines = 5,
-                        placeholder = { Text("Adicione observaçoes sobre o seu dia...", color = Color.Gray) },
-                        textStyle = TextStyle(color = Color.Black),
-                        modifier = Modifier.fillMaxWidth(),
+                        placeholder = {
+                            Text(
+                                "Adicione observaçoes sobre o seu dia...",
+                                color = MaterialTheme.colorScheme.onSurfaceVariant
+                            )
+                        },
+                        textStyle = TextStyle(color = MaterialTheme.colorScheme.onSurface),
+                        modifier = Modifier
+                            .border(
+                                width = 1.dp,
+                                color = MaterialTheme.colorScheme.outlineVariant,
+                                shape = RoundedCornerShape(8.dp)
+                            )
+                            .fillMaxWidth(),
                         shape = RoundedCornerShape(8.dp),
                         colors = TextFieldDefaults.colors(
-                            focusedContainerColor = Color(0xFFF3F4F6),
-                            unfocusedContainerColor = Color(0xFFF3F4F6),
-                            focusedIndicatorColor = Color.Transparent,
+                            focusedContainerColor = MaterialTheme.colorScheme.surface,
+                            unfocusedContainerColor = MaterialTheme.colorScheme.surface,
+                            focusedIndicatorColor = MaterialTheme.colorScheme.primary,
                             unfocusedIndicatorColor = Color.Transparent,
-                            disabledIndicatorColor = Color.Transparent
+                            disabledIndicatorColor = Color.Transparent,
+                            focusedTextColor = MaterialTheme.colorScheme.onSurface,
+                            unfocusedTextColor = MaterialTheme.colorScheme.onSurface
                         )
                     )
                     Spacer(modifier = Modifier.height(4.dp))
                     Text(
                         text = "Partilhe pensamentos, eventos ou observações relevantes",
                         style = MaterialTheme.typography.labelMedium,
-                        color = Color.Gray
+                        color = MaterialTheme.colorScheme.onSurfaceVariant
                     )
                 }
             }
@@ -280,13 +293,13 @@ fun NewEntryScreen() {
             Icon(
                 imageVector = Icons.Default.Save,
                 contentDescription = "Guardar",
-                tint = Color.White,
+                tint = MaterialTheme.colorScheme.onPrimary,
                 modifier = Modifier.size(18.dp)
             )
             Spacer(modifier = Modifier.width(6.dp))
             Text(
                 text = "Guardar Entrada",
-                color = Color.White,
+                color = MaterialTheme.colorScheme.onPrimary,
                 fontWeight = FontWeight.Bold
             )
         }
@@ -301,7 +314,6 @@ fun EntryCard (title : String, description: String, labels: List<String>, value:
     ) {
         Column(
             modifier = Modifier
-                .background(Color.White)
                 .padding(16.dp)
                 .fillMaxWidth()
         ) {
@@ -395,7 +407,7 @@ fun SimpleComposablePreview() {
         modifier= Modifier
             .fillMaxSize()
             .padding(16.dp)
-            .background(Color.White),
+            .background(MaterialTheme.colorScheme.background),
     ) {
         NewEntryScreen()
     }

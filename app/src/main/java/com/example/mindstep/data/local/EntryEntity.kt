@@ -7,6 +7,7 @@ import androidx.room.PrimaryKey
 data class EntryEntity(
     @PrimaryKey(autoGenerate = true)
     val id: Long = 0,
+    val createdAt: Long = System.currentTimeMillis(),
     val mood: Int,
     val anxiety: Int,
     val sleep: Int,

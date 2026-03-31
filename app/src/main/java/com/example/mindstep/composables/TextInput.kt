@@ -2,6 +2,7 @@ package com.example.mindstep.composables
 
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Spacer
+import androidx.compose.foundation.border
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.shape.RoundedCornerShape
@@ -31,6 +32,11 @@ fun TextInput(value: String, setValue: (String) -> Unit, label: String, hint: St
             value = value,
             onValueChange = { setValue(it) },
             modifier = Modifier
+                .border(
+                    width = 1.dp,
+                    color = MaterialTheme.colorScheme.outlineVariant,
+                    shape = RoundedCornerShape(8.dp)
+                )
                 .fillMaxWidth()
                 .height(52.dp),
             keyboardOptions = KeyboardOptions.Default.copy(keyboardType = KeyboardType.Number),
@@ -38,18 +44,20 @@ fun TextInput(value: String, setValue: (String) -> Unit, label: String, hint: St
             textStyle = LocalTextStyle.current.copy(color = MaterialTheme.colorScheme.onSurface),
             shape = RoundedCornerShape(8.dp),
             colors = TextFieldDefaults.colors(
-                focusedContainerColor = Color(0xFFF3F4F6),
-                unfocusedContainerColor = Color(0xFFF3F4F6),
-                focusedIndicatorColor = Color.Transparent,
+                focusedContainerColor = MaterialTheme.colorScheme.surface,
+                unfocusedContainerColor = MaterialTheme.colorScheme.surface,
+                focusedIndicatorColor = MaterialTheme.colorScheme.primary,
                 unfocusedIndicatorColor = Color.Transparent,
-                disabledIndicatorColor = Color.Transparent
+                disabledIndicatorColor = Color.Transparent,
+                focusedTextColor = MaterialTheme.colorScheme.onSurface,
+                unfocusedTextColor = MaterialTheme.colorScheme.onSurface
             )
         )
         Spacer(modifier = Modifier.height(4.dp))
         Text(
             text = hint,
             style = MaterialTheme.typography.labelMedium,
-            color = Color.Gray
+            color = MaterialTheme.colorScheme.onSurfaceVariant
         )
     }
 }

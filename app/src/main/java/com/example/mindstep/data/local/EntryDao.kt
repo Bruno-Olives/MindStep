@@ -11,7 +11,7 @@ interface EntryDao {
     @Insert(onConflict = OnConflictStrategy.REPLACE)
     suspend fun insert(entry: EntryEntity)
 
-    @Query("SELECT * FROM entries ORDER BY id DESC")
+    @Query("SELECT * FROM entries ORDER BY createdAt DESC, id DESC")
     fun getAllEntries(): Flow<List<EntryEntity>>
 }
 

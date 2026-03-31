@@ -19,11 +19,15 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.compose.runtime.collectAsState
 import com.example.mindstep.data.local.MindStepDatabase
+import java.text.SimpleDateFormat
+import java.util.Date
+import java.util.Locale
 
 @Composable
 fun HistoryScreen() {
     val context = LocalContext.current
     val database = remember { MindStepDatabase.getDatabase(context.applicationContext) }
+    val dateFormatter = remember { SimpleDateFormat("dd/MM/yyyy HH:mm", Locale.getDefault()) }
     val entries by database.entryDao().getAllEntries().collectAsState(initial = emptyList())
 
     if (entries.isEmpty()) {
@@ -48,6 +52,7 @@ fun HistoryScreen() {
             Card(modifier = Modifier.fillMaxWidth()) {
                 Column(modifier = Modifier.padding(12.dp)) {
                     Text("Entrada #${entry.id}", style = MaterialTheme.typography.titleSmall, fontWeight = FontWeight.Bold)
+                    Text("Data: ${if (entry.createdAt == 0L) "Desconhecida" else dateFormatter.format(Date(entry.createdAt))}")
                     Text("Humor: ${entry.mood}")
                     Text("Ansiedade: ${entry.anxiety}")
                     Text("Sono: ${entry.sleep}")
