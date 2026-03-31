@@ -48,6 +48,7 @@ import androidx.compose.material3.Button
 import androidx.compose.runtime.mutableIntStateOf
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
+import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.ui.draw.rotate
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.platform.LocalContext
@@ -61,6 +62,9 @@ import androidx.compose.material3.TextField
 import androidx.compose.material3.TextFieldDefaults
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.ui.text.TextStyle
+import com.example.mindstep.data.local.EntryEntity
+import com.example.mindstep.data.local.MindStepDatabase
+import kotlinx.coroutines.launch
 import java.util.Locale
 
 private val moodLabels = listOf("Muito mal", "Mal", "Neutro", "Bem", "Muito bem")
@@ -76,6 +80,9 @@ fun NewEntryScreen() {
     val (waterGlasses, setWaterGlasses) = remember { mutableStateOf("6") }
     val notes = remember { mutableStateOf("") }
     val context = LocalContext.current
+    val coroutineScope = rememberCoroutineScope()
+    val database = remember { MindStepDatabase.getDatabase(context.applicationContext) }
+    val entryDao = remember(database) { database.entryDao() }
 
     val speechLauncher = rememberLauncherForActivityResult(
         contract = ActivityResultContracts.StartActivityForResult()
@@ -112,7 +119,33 @@ fun NewEntryScreen() {
     }
 
     fun save (){
-        // TODO: Implementar lógica de armazenamento dos dados
+        val sleepValue = sleep.toIntOrNull()
+        val stepsValue = steps.toIntOrNull()
+        val waterValue = waterGlasses.toIntOrNull()
+
+        if (sleepValue == null || stepsValue == null || waterValue == null) {
+            Toast.makeText(context, "Preencha sono, passos e agua com numeros validos.", Toast.LENGTH_SHORT).show()
+            return
+        }
+
+        val entry = EntryEntity(
+            mood = mood,
+            anxiety = anxiety,
+            sleep = sleepValue,
+            steps = stepsValue,
+            waterGlasses = waterValue,
+            notes = notes.value.trim()
+        )
+
+        coroutineScope.launch {
+            runCatching { entryDao.insert(entry) }
+                .onSuccess {
+                    Toast.makeText(context, "Entrada guardada com sucesso.", Toast.LENGTH_SHORT).show()
+                }
+                .onFailure {
+                    Toast.makeText(context, "Erro ao guardar entrada.", Toast.LENGTH_SHORT).show()
+                }
+        }
     }
 
     fun voiceRecord() {
