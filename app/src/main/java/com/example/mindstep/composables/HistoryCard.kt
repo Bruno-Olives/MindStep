@@ -24,12 +24,22 @@ import com.example.mindstep.utils.moodLabels
 import java.text.SimpleDateFormat
 import java.util.Date
 import java.util.Locale
+import java.util.TimeZone
 
 @Composable
 fun HistoryCard(entry: EntryEntity) {
     val locale = remember { Locale.forLanguageTag("pt-PT") }
-    val dateFormatter = remember { SimpleDateFormat("EEEE, d 'de' MMMM", locale) }
-    val timeFormatter = remember { SimpleDateFormat("HH:mm", locale) }
+    val lisbonTimeZone = remember { TimeZone.getTimeZone("Europe/Lisbon") }
+    val dateFormatter = remember {
+        SimpleDateFormat("EEEE, d 'de' MMMM", locale).apply {
+            timeZone = lisbonTimeZone
+        }
+    }
+    val timeFormatter = remember {
+        SimpleDateFormat("HH:mm", locale).apply {
+            timeZone = lisbonTimeZone
+        }
+    }
     val formattedDate = if (entry.createdAt == 0L) {
         "Desconhecida"
     } else {
