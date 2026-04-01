@@ -83,13 +83,13 @@ fun HistoryScreen() {
                 Icon(
                     imageVector = Icons.Default.Save,
                     contentDescription = "Exportar TXT",
-                    tint = MaterialTheme.colorScheme.onPrimary,
+                    tint = MaterialTheme.colorScheme.onSurface,
                     modifier = Modifier.size(18.dp)
                 )
                 Spacer(modifier = Modifier.width(6.dp))
                 Text(
                     text = "Exportar TXT",
-                    color = MaterialTheme.colorScheme.onPrimary,
+                    color = MaterialTheme.colorScheme.onSurface,
                     fontWeight = FontWeight.Bold
                 )
             }
@@ -101,13 +101,13 @@ fun HistoryScreen() {
                 Icon(
                     imageVector = Icons.Default.Save,
                     contentDescription = "Imprimir PDF",
-                    tint = MaterialTheme.colorScheme.onPrimary,
+                    tint = MaterialTheme.colorScheme.onSurface,
                     modifier = Modifier.size(18.dp)
                 )
                 Spacer(modifier = Modifier.width(6.dp))
                 Text(
                     text = "Imprimir PDF",
-                    color = MaterialTheme.colorScheme.onPrimary,
+                    color = MaterialTheme.colorScheme.onSurface,
                     fontWeight = FontWeight.Bold
                 )
             }
@@ -115,7 +115,7 @@ fun HistoryScreen() {
 
         LazyColumn(
             verticalArrangement = Arrangement.spacedBy(16.dp),
-            contentPadding = PaddingValues(bottom = 16.dp, top = 16.dp),
+            contentPadding = PaddingValues(bottom = 64.dp, top = 16.dp),
             modifier = Modifier
                 .fillMaxSize()
         ) {

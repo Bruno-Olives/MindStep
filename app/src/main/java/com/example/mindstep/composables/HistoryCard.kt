@@ -9,8 +9,13 @@ import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.size
+import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.filled.Delete
 import androidx.compose.material3.Card
 import androidx.compose.material3.CardDefaults
+import androidx.compose.material3.Icon
+import androidx.compose.material3.IconButton
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
@@ -51,18 +56,34 @@ fun HistoryCard(entry: EntryEntity) {
         timeFormatter.format(Date(entry.createdAt)).lowercase(locale)
     }
 
+    fun delete() {
+    }
+
     Card(elevation = CardDefaults.cardElevation(8.dp), modifier = Modifier.fillMaxWidth()) {
         Column(modifier = Modifier.padding(12.dp)) {
-            Text(
-                text = formattedDate,
-                style = MaterialTheme.typography.labelLarge,
-                fontWeight = FontWeight.ExtraBold
-            )
-            Text(
-                text = formattedTime,
-                style = MaterialTheme.typography.labelMedium,
-                color = MaterialTheme.colorScheme.onSurfaceVariant
-            )
+            Row(
+                horizontalArrangement = Arrangement.SpaceBetween,
+                modifier = Modifier.fillMaxWidth().padding(bottom = 8.dp, top = 8.dp)
+            ) {
+                Column() {
+                    Text(
+                        text = formattedDate,
+                        style = MaterialTheme.typography.labelLarge,
+                        fontWeight = FontWeight.ExtraBold
+                    )
+                    Text(
+                        text = formattedTime,
+                        style = MaterialTheme.typography.labelMedium,
+                        color = MaterialTheme.colorScheme.onSurfaceVariant
+                    )
+                }
+                IconButton(
+                    onClick = { delete() },
+                    modifier = Modifier.size(24.dp),
+                ) {
+                    Icon(Icons.Default.Delete, contentDescription = "Apagar registo", tint = MaterialTheme.colorScheme.error)
+                }
+            }
 
             Spacer(Modifier.height(8.dp))
 
