@@ -65,11 +65,12 @@ import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.ui.text.TextStyle
 import com.example.mindstep.data.local.EntryEntity
 import com.example.mindstep.data.local.MindStepDatabase
+import com.example.mindstep.utils.anxietyLabels
+import com.example.mindstep.utils.moodLabels
 import kotlinx.coroutines.launch
 import java.util.Locale
 
-private val moodLabels = listOf("Muito mal", "Mal", "Neutro", "Bem", "Muito bem")
-private val anxietyLabels = listOf("Muito baixa", "Baixa", "Moderada", "Alta", "Muito alta")
+
 private val valueColors = listOf("#c10007", "#ca3500", "#a65f00", "#497d00", "#008236")
 
 @Composable
@@ -229,6 +230,7 @@ fun NewEntryScreen(onSaveSuccess: () -> Unit = {}) {
                     )
                     OutlinedButton(
                         onClick = { voiceRecord() },
+                        shape = RoundedCornerShape(8.dp),
                         contentPadding = PaddingValues(horizontal = 12.dp, vertical = 0.dp),
                         modifier = Modifier.height(36.dp)
                     ) {
@@ -294,13 +296,13 @@ fun NewEntryScreen(onSaveSuccess: () -> Unit = {}) {
             Icon(
                 imageVector = Icons.Default.Save,
                 contentDescription = "Guardar",
-                tint = MaterialTheme.colorScheme.onPrimary,
+                tint = MaterialTheme.colorScheme.onSurface,
                 modifier = Modifier.size(18.dp)
             )
             Spacer(modifier = Modifier.width(6.dp))
             Text(
                 text = "Guardar Entrada",
-                color = MaterialTheme.colorScheme.onPrimary,
+                color = MaterialTheme.colorScheme.onSurface,
                 fontWeight = FontWeight.Bold
             )
         }
