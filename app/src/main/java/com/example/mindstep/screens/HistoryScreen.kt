@@ -3,9 +3,12 @@ package com.example.mindstep.screens
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.PaddingValues
+import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
+import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.wrapContentHeight
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
 import androidx.compose.material3.Card
@@ -31,23 +34,31 @@ fun HistoryScreen() {
     val dateFormatter = remember { SimpleDateFormat("dd/MM/yyyy HH:mm", Locale.getDefault()) }
     val entries by database.entryDao().getAllEntries().collectAsState(initial = emptyList())
 
-    if (entries.isEmpty()) {
-        Column(
-            modifier = Modifier
-                .fillMaxSize()
-                .padding(16.dp),
-            verticalArrangement = Arrangement.Center
-        ) {
-            Text("Sem entradas guardadas.")
-        }
-        return
-    }
 
     Column (
         modifier = Modifier
             .fillMaxSize()
             .padding(start = 16.dp, end = 16.dp)
     ) {
+        if (entries.isEmpty()) {
+            Spacer(modifier = Modifier.height(16.dp))
+            Card(
+                modifier = Modifier
+                    .fillMaxWidth()
+            ) {
+                Column(
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .wrapContentHeight()
+                        .padding(16.dp),
+                    verticalArrangement = Arrangement.Center
+                ) {
+                    Text("Ainda não tem registos no seu historico.")
+                }
+            }
+            return
+        }
+
         LazyColumn(
             verticalArrangement = Arrangement.spacedBy(16.dp),
             contentPadding = PaddingValues(bottom = 16.dp, top = 16.dp),
