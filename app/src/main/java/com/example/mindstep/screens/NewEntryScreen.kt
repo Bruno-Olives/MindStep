@@ -65,11 +65,12 @@ import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.ui.text.TextStyle
 import com.example.mindstep.data.local.EntryEntity
 import com.example.mindstep.data.local.MindStepDatabase
+import com.example.mindstep.utils.anxietyLabels
+import com.example.mindstep.utils.moodLabels
 import kotlinx.coroutines.launch
 import java.util.Locale
 
-private val moodLabels = listOf("Muito mal", "Mal", "Neutro", "Bem", "Muito bem")
-private val anxietyLabels = listOf("Muito baixa", "Baixa", "Moderada", "Alta", "Muito alta")
+
 private val valueColors = listOf("#c10007", "#ca3500", "#a65f00", "#497d00", "#008236")
 
 @Composable

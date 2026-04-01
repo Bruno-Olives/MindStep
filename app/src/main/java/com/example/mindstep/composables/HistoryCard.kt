@@ -19,6 +19,8 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import com.example.mindstep.data.local.EntryEntity
+import com.example.mindstep.utils.anxietyLabels
+import com.example.mindstep.utils.moodLabels
 import java.text.SimpleDateFormat
 import java.util.Date
 import java.util.Locale
@@ -52,6 +54,8 @@ fun HistoryCard(entry: EntryEntity) {
                 color = MaterialTheme.colorScheme.onSurfaceVariant
             )
 
+            Spacer(Modifier.height(8.dp))
+
             Column (
                 verticalArrangement = Arrangement.spacedBy(12.dp),
             ) {
@@ -60,8 +64,8 @@ fun HistoryCard(entry: EntryEntity) {
                     horizontalArrangement = Arrangement.spacedBy(12.dp),
                     modifier = Modifier.fillMaxWidth()
                 ) {
-                    ValueCard(title = "Humor", value = entry.mood.toString(), subtitle = "${entry.mood}/5")
-                    ValueCard(title = "Ansiedade", value = entry.anxiety.toString(), subtitle = "${entry.anxiety}/5")
+                    ValueCard(title = "Humor", value = moodLabels[entry.mood-1], subtitle = "${entry.mood}/5")
+                    ValueCard(title = "Ansiedade", value = anxietyLabels[entry.anxiety-1], subtitle = "${entry.anxiety}/5")
                 }
 
                 Row (
