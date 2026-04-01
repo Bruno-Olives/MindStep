@@ -229,6 +229,7 @@ fun NewEntryScreen(onSaveSuccess: () -> Unit = {}) {
                     )
                     OutlinedButton(
                         onClick = { voiceRecord() },
+                        shape = RoundedCornerShape(8.dp),
                         contentPadding = PaddingValues(horizontal = 12.dp, vertical = 0.dp),
                         modifier = Modifier.height(36.dp)
                     ) {
