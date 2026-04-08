@@ -1,5 +1,7 @@
 package com.example.mindstep.composables
 
+import android.app.AlertDialog
+import android.widget.Toast
 import androidx.compose.foundation.BorderStroke
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
@@ -20,12 +22,16 @@ import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.remember
+import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import com.example.mindstep.data.local.EntryEntity
+import com.example.mindstep.data.local.MindStepDatabase
 import com.example.mindstep.utils.anxietyLabels
 import com.example.mindstep.utils.moodLabels
+import kotlinx.coroutines.launch
 import java.text.SimpleDateFormat
 import java.util.Date
 import java.util.Locale
@@ -33,6 +39,10 @@ import java.util.TimeZone
 
 @Composable
 fun HistoryCard(entry: EntryEntity) {
+    val context = LocalContext.current
+    val coroutineScope = rememberCoroutineScope()
+    val database = remember { MindStepDatabase.getDatabase(context.applicationContext) }
+    val entryDao = remember(database) { database.entryDao() }
     val locale = remember { Locale.forLanguageTag("pt-PT") }
     val lisbonTimeZone = remember { TimeZone.getTimeZone("Europe/Lisbon") }
     val dateFormatter = remember {
@@ -57,6 +67,19 @@ fun HistoryCard(entry: EntryEntity) {
     }
 
     fun delete() {
+        AlertDialog.Builder(context)
+            .setTitle("Apagar registo")
+            .setMessage("Tem a certeza que quer apagar este registo?")
+            .setNegativeButton("Cancelar", null)
+            .setPositiveButton("Apagar") { _, _ ->
+                coroutineScope.launch {
+                    runCatching { entryDao.deleteById(entry.id) }
+                        .onFailure {
+                            Toast.makeText(context, "Não foi possível apagar o registo.", Toast.LENGTH_SHORT).show()
+                        }
+                }
+            }
+            .show()
     }
 
     Card(elevation = CardDefaults.cardElevation(8.dp), modifier = Modifier.fillMaxWidth()) {

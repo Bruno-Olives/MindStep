@@ -296,13 +296,13 @@ fun NewEntryScreen(onSaveSuccess: () -> Unit = {}) {
             Icon(
                 imageVector = Icons.Default.Save,
                 contentDescription = "Guardar",
-                tint = MaterialTheme.colorScheme.onSurface,
+                tint = Color.White,
                 modifier = Modifier.size(18.dp)
             )
             Spacer(modifier = Modifier.width(6.dp))
             Text(
                 text = "Guardar Entrada",
-                color = MaterialTheme.colorScheme.onSurface,
+                color = Color.White,
                 fontWeight = FontWeight.Bold
             )
         }
