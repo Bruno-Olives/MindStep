@@ -44,7 +44,7 @@ private fun buildHistoryLines(entries: List<EntryEntity>): List<String> {
     }
 
     return buildList {
-        add("Historico MindStep")
+        add("Histórico MindStep")
         add("Gerado em: ${dateTimeFormatter.format(Date())}")
         add("")
 
@@ -59,7 +59,7 @@ private fun buildHistoryLines(entries: List<EntryEntity>): List<String> {
             add("Ansiedade: $anxiety (${entry.anxiety}/5)")
             add("Sono: ${entry.sleep}h")
             add("Passos: ${entry.steps}")
-            add("Agua: ${entry.waterGlasses} copos")
+            add("Água: ${entry.waterGlasses} copos")
             add("Notas: ${entry.notes.ifBlank { "Sem notas" }}")
             add("")
         }
@@ -146,12 +146,12 @@ private fun writeToDownloads(context: Context, fileName: String, mimeType: Strin
 
     val collection = MediaStore.Downloads.EXTERNAL_CONTENT_URI
     val fileUri = resolver.insert(collection, values)
-        ?: throw IllegalStateException("Nao foi possivel criar o ficheiro em Downloads.")
+        ?: throw IllegalStateException("Não foi possível criar o ficheiro em Downloads.")
 
     try {
         resolver.openOutputStream(fileUri)?.use { stream ->
             stream.write(bytes)
-        } ?: throw IllegalStateException("Nao foi possivel abrir o ficheiro para escrita.")
+        } ?: throw IllegalStateException("Não foi possível abrir o ficheiro para escrita.")
 
         val ready = ContentValues().apply { put(MediaStore.MediaColumns.IS_PENDING, 0) }
         resolver.update(fileUri, ready, null, null)
