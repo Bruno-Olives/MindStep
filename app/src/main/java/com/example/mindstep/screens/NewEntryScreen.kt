@@ -46,10 +46,7 @@ import androidx.compose.material3.CardDefaults
 import androidx.compose.material3.IconButton
 import androidx.compose.material3.OutlinedButton
 import androidx.compose.material3.Button
-import androidx.compose.runtime.mutableIntStateOf
-import androidx.compose.runtime.mutableStateOf
-import androidx.compose.runtime.remember
-import androidx.compose.runtime.rememberCoroutineScope
+import androidx.compose.runtime.*
 import androidx.compose.ui.draw.rotate
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.platform.LocalContext
@@ -64,14 +61,14 @@ import androidx.compose.material3.TextFieldDefaults
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.ui.text.TextStyle
 import com.example.mindstep.data.local.EntryEntity
+import com.example.mindstep.data.local.EntrySettings
 import com.example.mindstep.data.local.MindStepDatabase
 import com.example.mindstep.utils.anxietyLabels
 import com.example.mindstep.utils.moodLabels
+import com.example.mindstep.utils.valueColors
 import kotlinx.coroutines.launch
 import java.util.Locale
 
-
-private val valueColors = listOf("#c10007", "#ca3500", "#a65f00", "#497d00", "#008236")
 
 @Composable
 fun NewEntryScreen(onSaveSuccess: () -> Unit = {}) {
@@ -85,6 +82,10 @@ fun NewEntryScreen(onSaveSuccess: () -> Unit = {}) {
     val coroutineScope = rememberCoroutineScope()
     val database = remember { MindStepDatabase.getDatabase(context.applicationContext) }
     val entryDao = remember(database) { database.entryDao() }
+    val settingsDao = remember(database) { database.settingsDao() }
+
+    val dbSettings by settingsDao.getSettings().collectAsState(initial = EntrySettings())
+    val voiceInputEnabled = dbSettings?.voiceInput ?: false
 
     val speechLauncher = rememberLauncherForActivityResult(
         contract = ActivityResultContracts.StartActivityForResult()
@@ -153,7 +154,11 @@ fun NewEntryScreen(onSaveSuccess: () -> Unit = {}) {
     }
 
     fun voiceRecord() {
-        recordAudioPermissionLauncher.launch(android.Manifest.permission.RECORD_AUDIO)
+        if (voiceInputEnabled) {
+            recordAudioPermissionLauncher.launch(android.Manifest.permission.RECORD_AUDIO)
+        } else {
+            Toast.makeText(context, "tem que dar enable nos settings", Toast.LENGTH_SHORT).show()
+        }
     }
 
     Column(
@@ -237,13 +242,13 @@ fun NewEntryScreen(onSaveSuccess: () -> Unit = {}) {
                         Icon(
                             imageVector = Icons.Default.Mic,
                             contentDescription = "Voz",
-                            tint = MaterialTheme.colorScheme.onSurface,
+                            tint = if (voiceInputEnabled) MaterialTheme.colorScheme.onSurface else MaterialTheme.colorScheme.onSurface.copy(alpha = 0.38f),
                             modifier = Modifier.size(18.dp)
                         )
                         Spacer(modifier = Modifier.width(6.dp))
                         Text(
                             text = "Voz",
-                            color = MaterialTheme.colorScheme.onSurface,
+                            color = if (voiceInputEnabled) MaterialTheme.colorScheme.onSurface else MaterialTheme.colorScheme.onSurface.copy(alpha = 0.38f),
                             fontWeight = FontWeight.Bold
                         )
                     }

@@ -16,3 +16,15 @@ data class EntryEntity(
     val notes: String
 )
 
+@Entity(tableName = "settings")
+data class EntrySettings(
+    @PrimaryKey
+    val id: Int = 1,
+    val reminderWater: Boolean = false,
+    val waterInterval: Int = 120,
+    val reminderMeditation: Boolean = false,
+    val meditationTime: String = "08:00",
+    val reduceAnimations: Boolean = false,
+    val hapticFeedback: Boolean = true,
+    val voiceInput: Boolean = true
+)

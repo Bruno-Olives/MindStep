@@ -17,3 +17,12 @@ interface EntryDao {
     @Query("DELETE FROM entries WHERE id = :entryId")
     suspend fun deleteById(entryId: Long)
 }
+
+@Dao
+interface SettingsDao {
+    @Insert(onConflict = OnConflictStrategy.REPLACE)
+    suspend fun insert(settings: EntrySettings)
+
+    @Query("SELECT * FROM settings WHERE id = 1")
+    fun getSettings(): Flow<EntrySettings?>
+}

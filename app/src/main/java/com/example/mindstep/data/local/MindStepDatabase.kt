@@ -5,9 +5,10 @@ import androidx.room.Database
 import androidx.room.Room
 import androidx.room.RoomDatabase
 
-@Database(entities = [EntryEntity::class], version = 2, exportSchema = false)
+@Database(entities = [EntryEntity::class, EntrySettings::class], version = 3, exportSchema = false)
 abstract class MindStepDatabase : RoomDatabase() {
     abstract fun entryDao(): EntryDao
+    abstract fun settingsDao(): SettingsDao
 
     companion object {
         @Volatile
@@ -19,11 +20,12 @@ abstract class MindStepDatabase : RoomDatabase() {
                     context.applicationContext,
                     MindStepDatabase::class.java,
                     "mindstep_database"
-                ).build()
+                )
+                .fallbackToDestructiveMigration()
+                .build()
                 INSTANCE = instance
                 instance
             }
         }
     }
 }
-
