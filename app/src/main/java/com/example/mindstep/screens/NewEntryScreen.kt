@@ -157,7 +157,7 @@ fun NewEntryScreen(onSaveSuccess: () -> Unit = {}) {
         if (voiceInputEnabled) {
             recordAudioPermissionLauncher.launch(android.Manifest.permission.RECORD_AUDIO)
         } else {
-            Toast.makeText(context, "tem que dar enable nos settings", Toast.LENGTH_SHORT).show()
+            Toast.makeText(context, "Esta funcionalidade tem de ser ativada nas configurações", Toast.LENGTH_SHORT).show()
         }
     }
 
@@ -195,19 +195,19 @@ fun NewEntryScreen(onSaveSuccess: () -> Unit = {}) {
             ) {
                 TextInput(
                     value = sleep,
-                    setValue = setSleep,
+                    onValueChange = setSleep,
                     label = "Horas de sono",
                     hint = "Última noite"
                 )
                 TextInput(
                     value = steps,
-                    setValue = setSteps,
+                    onValueChange = setSteps,
                     label = "Passos",
                     hint = "Hoje"
                 )
                 TextInput(
                     value = waterGlasses,
-                    setValue = setWaterGlasses,
+                    onValueChange = setWaterGlasses,
                     label = "Copos de água",
                     hint = "Hoje"
                 )

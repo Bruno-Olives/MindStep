@@ -33,6 +33,7 @@ import androidx.core.content.ContextCompat
 import com.example.mindstep.composables.AboutAccessibilityCard
 import com.example.mindstep.composables.SettingsSection
 import com.example.mindstep.composables.SettingsSwitchRow
+import com.example.mindstep.composables.TextInput
 import com.example.mindstep.data.local.EntrySettings
 import com.example.mindstep.data.local.MindStepDatabase
 import com.example.mindstep.utils.NotificationReceiver
@@ -154,25 +155,6 @@ fun ConfigScreen() {
             .verticalScroll(rememberScrollState())
             .background(MaterialTheme.colorScheme.background)
     ) {
-        // Cabeçalho azul ocupando toda a largura
-        Column(
-            modifier = Modifier
-                .fillMaxWidth()
-                .background(Color(0xFF2196F3))
-                .padding(start = 16.dp, end = 16.dp, top = 32.dp, bottom = 24.dp)
-        ) {
-            Text(
-                text = "Configurações",
-                style = MaterialTheme.typography.headlineMedium,
-                fontWeight = FontWeight.Bold,
-                color = Color.White
-            )
-            Text(
-                text = "Personalize a sua experiência e lembretes",
-                style = MaterialTheme.typography.bodyMedium,
-                color = Color.White.copy(alpha = 0.8f)
-            )
-        }
 
         // Conteúdo Principal
         Column(
@@ -239,19 +221,23 @@ fun ConfigScreen() {
                 )
 
                 if (settings.reminderWater) {
-                    OutlinedTextField(
-                        value = settings.waterInterval.toString(),
-                        onValueChange = { 
-                            val interval = it.toIntOrNull() ?: 0
-                            settings = settings.copy(waterInterval = interval)
-                        },
-                        enabled = hasNotificationPermission,
-                        label = { Text("Intervalo (minutos)") },
+                    Column(
+                        verticalArrangement = Arrangement.spacedBy(16.dp),
                         modifier = Modifier
+                            .background(Color(0xFFEEEEEE), shape = RoundedCornerShape(12.dp))
+                            .padding(12.dp)
                             .fillMaxWidth()
-                            .padding(start = 48.dp),
-                        keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Number)
-                    )
+                    ) {
+                        TextInput(
+                            value = settings.waterInterval.toString(),
+                            onValueChange = {
+                                val interval = it.toIntOrNull() ?: 0
+                                settings = settings.copy(waterInterval = interval)
+                            },
+                            label = "Intervalo (minutos)",
+                            enabled = hasNotificationPermission,
+                        )
+                    }
                 }
 
                 SettingsSwitchRow(
@@ -279,21 +265,30 @@ fun ConfigScreen() {
                         true
                     )
 
-                    OutlinedTextField(
-                        value = settings.meditationTime,
-                        onValueChange = { },
-                        readOnly = true,
-                        enabled = hasNotificationPermission,
-                        label = { Text("Hora da Meditação") },
+                    Column(
+                        verticalArrangement = Arrangement.spacedBy(16.dp),
                         modifier = Modifier
+                            .background(Color(0xFFEEEEEE), shape = RoundedCornerShape(12.dp))
+                            .padding(16.dp)
                             .fillMaxWidth()
-                            .padding(start = 48.dp),
-                        trailingIcon = {
-                            IconButton(onClick = { if (hasNotificationPermission) timePickerDialog.show() }) {
-                                Icon(Icons.Default.AccessTime, contentDescription = "Selecionar hora")
+                        ) {
+                        TextInput(
+                            value = settings.meditationTime,
+                            onValueChange = { },
+                            label = "Hora da Meditação",
+                            enabled = hasNotificationPermission,
+                            readOnly = true,
+                            onClick = { if (hasNotificationPermission) timePickerDialog.show() },
+                            trailingIcon = {
+                                IconButton(onClick = { }) {
+                                    Icon(
+                                        Icons.Default.AccessTime,
+                                        contentDescription = "Selecionar hora"
+                                    )
+                                }
                             }
-                        }
-                    )
+                        )
+                    }
                 }
             }
 
@@ -323,8 +318,6 @@ fun ConfigScreen() {
                 )
             }
 
-
-            Spacer(modifier = Modifier.height(8.dp))
 
             Button(
                 onClick = { saveSettings() },
