@@ -12,10 +12,19 @@ import androidx.compose.material.icons.filled.Add
 import androidx.compose.material.icons.filled.Home
 import androidx.compose.material.icons.filled.Settings
 import androidx.compose.material.icons.filled.History
+import androidx.compose.material.icons.automirrored.filled.ArrowBack
+import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.FloatingActionButton
 import androidx.compose.material3.Icon
+import androidx.compose.material3.IconButton
+import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Text
+import androidx.compose.material3.TopAppBar
+import androidx.compose.material3.TopAppBarDefaults
+import androidx.compose.ui.draw.shadow
+import androidx.compose.ui.text.font.FontWeight
+import androidx.compose.ui.unit.dp
 import androidx.compose.material3.adaptive.navigationsuite.NavigationSuiteScaffold
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.collectAsState
@@ -55,6 +64,7 @@ class MainActivity : ComponentActivity() {
     }
 }
 
+@OptIn(ExperimentalMaterial3Api::class)
 @PreviewScreenSizes
 @Composable
 fun MindStepApp() {
@@ -97,8 +107,40 @@ fun MindStepApp() {
             }
         }
     ) {
+        val topBarTitle = when (currentRoute) {
+            MainDestinations.DASHBOARD.route -> "MindStep"
+            MainDestinations.HISTORY.route -> "Histórico"
+            MainDestinations.CONFIG.route -> "Configurações"
+            AppScreen.NewEntry.route -> "Novo Registo"
+            else -> "MindStep"
+        }
+
         Scaffold(
             modifier = Modifier.fillMaxSize(),
+            topBar = {
+                TopAppBar(
+                    title = {
+                        Text(
+                            text = topBarTitle,
+                            fontWeight = FontWeight.Bold
+                        )
+                    },
+                    navigationIcon = {
+                        if (currentRoute == AppScreen.NewEntry.route) {
+                            IconButton(onClick = { navController.popBackStack() }) {
+                                Icon(
+                                    Icons.AutoMirrored.Filled.ArrowBack,
+                                    contentDescription = "Voltar"
+                                )
+                            }
+                        }
+                    },
+                    modifier = Modifier.shadow(4.dp),
+                    colors = TopAppBarDefaults.topAppBarColors(
+                        containerColor = MaterialTheme.colorScheme.surfaceContainer
+                    )
+                )
+            },
             floatingActionButton = {
                 if (currentRoute != AppScreen.NewEntry.route) {
                     FloatingActionButton(onClick = { navController.navigate(AppScreen.NewEntry.route) }) {
