@@ -730,9 +730,6 @@ private fun RowScope.SummaryCard(
     Card(
         modifier = Modifier.weight(1f),
         shape = RoundedCornerShape(16.dp),
-        colors = CardDefaults.cardColors(
-            containerColor = MaterialTheme.colorScheme.surface
-        ),
         border = BorderStroke(2.dp, borderColor),
         elevation = CardDefaults.cardElevation(2.dp)
     ) {
