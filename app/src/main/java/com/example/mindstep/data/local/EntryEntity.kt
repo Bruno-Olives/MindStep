@@ -26,5 +26,6 @@ data class EntrySettings(
     val meditationTime: String = "08:00",
     val reduceAnimations: Boolean = false,
     val hapticFeedback: Boolean = true,
-    val voiceInput: Boolean = true
+    val voiceInput: Boolean = true,
+    val darkMode: Boolean? = null
 )

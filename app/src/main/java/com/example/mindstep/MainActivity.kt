@@ -4,6 +4,7 @@ import android.os.Bundle
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
 import androidx.activity.enableEdgeToEdge
+import androidx.compose.foundation.isSystemInDarkTheme
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.padding
 import androidx.compose.material.icons.Icons
@@ -17,15 +18,19 @@ import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Text
 import androidx.compose.material3.adaptive.navigationsuite.NavigationSuiteScaffold
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
+import androidx.compose.runtime.remember
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.vector.ImageVector
+import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.tooling.preview.PreviewScreenSizes
 import androidx.navigation.NavGraph.Companion.findStartDestination
 import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
 import androidx.navigation.compose.currentBackStackEntryAsState
 import androidx.navigation.compose.rememberNavController
+import com.example.mindstep.data.local.MindStepDatabase
 import com.example.mindstep.screens.ConfigScreen
 import com.example.mindstep.screens.HistoryScreen
 import com.example.mindstep.screens.HomeScreen
@@ -37,7 +42,13 @@ class MainActivity : ComponentActivity() {
         super.onCreate(savedInstanceState)
         enableEdgeToEdge()
         setContent {
-            MindStepTheme {
+            val context = LocalContext.current
+            val database = remember { MindStepDatabase.getDatabase(context.applicationContext) }
+            val settings by database.settingsDao().getSettings().collectAsState(initial = null)
+            val systemDark = isSystemInDarkTheme()
+            val isDark = settings?.darkMode ?: systemDark
+
+            MindStepTheme(darkTheme = isDark) {
                 MindStepApp()
             }
         }
