@@ -51,6 +51,7 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import com.example.mindstep.data.local.EntryEntity
 import com.example.mindstep.data.local.MindStepDatabase
+import com.example.mindstep.utils.LocalReduceAnimations
 import java.text.SimpleDateFormat
 import java.util.Calendar
 import java.util.Date
@@ -277,7 +278,10 @@ private fun MentalWellbeingSection(monthEntries: List<EntryEntity>, timeZone: Ti
         else "decrescente de ${String.format("%.0f", kotlin.math.abs(pct))}%"
     }
 
-    AnimatedVisibility(visible = showInfo) {
+    val reduceAnimations = LocalReduceAnimations.current
+
+    @Composable
+    fun MentalInfoCard() {
         Card(
             modifier = Modifier.fillMaxWidth(),
             colors = CardDefaults.cardColors(
@@ -306,6 +310,12 @@ private fun MentalWellbeingSection(monthEntries: List<EntryEntity>, timeZone: Ti
                 )
             }
         }
+    }
+
+    if (reduceAnimations) {
+        if (showInfo) { MentalInfoCard() }
+    } else {
+        AnimatedVisibility(visible = showInfo) { MentalInfoCard() }
     }
 
     Spacer(Modifier.height(12.dp))
@@ -511,7 +521,10 @@ private fun PhysicalActivitySection(monthEntries: List<EntryEntity>, timeZone: T
         else "decrescente de ${String.format("%.0f", kotlin.math.abs(pct))}%"
     }
 
-    AnimatedVisibility(visible = showInfo) {
+    val reduceAnimations = LocalReduceAnimations.current
+
+    @Composable
+    fun PhysicalInfoCard() {
         Card(
             modifier = Modifier.fillMaxWidth(),
             colors = CardDefaults.cardColors(
@@ -534,6 +547,12 @@ private fun PhysicalActivitySection(monthEntries: List<EntryEntity>, timeZone: T
                 )
             }
         }
+    }
+
+    if (reduceAnimations) {
+        if (showInfo) { PhysicalInfoCard() }
+    } else {
+        AnimatedVisibility(visible = showInfo) { PhysicalInfoCard() }
     }
 
     Spacer(Modifier.height(12.dp))

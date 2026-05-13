@@ -27,6 +27,7 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.compose.material3.adaptive.navigationsuite.NavigationSuiteScaffold
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.CompositionLocalProvider
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.remember
@@ -34,6 +35,10 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.tooling.preview.PreviewScreenSizes
+import androidx.compose.animation.EnterTransition
+import androidx.compose.animation.ExitTransition
+import androidx.compose.animation.fadeIn
+import androidx.compose.animation.fadeOut
 import androidx.navigation.NavGraph.Companion.findStartDestination
 import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
@@ -45,6 +50,7 @@ import com.example.mindstep.screens.HistoryScreen
 import com.example.mindstep.screens.HomeScreen
 import com.example.mindstep.screens.NewEntryScreen
 import com.example.mindstep.ui.theme.MindStepTheme
+import com.example.mindstep.utils.LocalReduceAnimations
 
 class MainActivity : ComponentActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -57,8 +63,12 @@ class MainActivity : ComponentActivity() {
             val systemDark = isSystemInDarkTheme()
             val isDark = settings?.darkMode ?: systemDark
 
+            val reduceAnimations = settings?.reduceAnimations ?: false
+
             MindStepTheme(darkTheme = isDark) {
-                MindStepApp()
+                CompositionLocalProvider(LocalReduceAnimations provides reduceAnimations) {
+                    MindStepApp()
+                }
             }
         }
     }
@@ -149,10 +159,16 @@ fun MindStepApp() {
                 }
             }
         ) { innerPadding ->
+            val reduceAnimations = LocalReduceAnimations.current
+
             NavHost(
                 navController = navController,
                 startDestination = MainDestinations.DASHBOARD.route,
-                modifier = Modifier.padding(innerPadding)
+                modifier = Modifier.padding(innerPadding),
+                enterTransition = { if (reduceAnimations) EnterTransition.None else fadeIn() },
+                exitTransition = { if (reduceAnimations) ExitTransition.None else fadeOut() },
+                popEnterTransition = { if (reduceAnimations) EnterTransition.None else fadeIn() },
+                popExitTransition = { if (reduceAnimations) ExitTransition.None else fadeOut() }
             ) {
                 composable(MainDestinations.DASHBOARD.route) { HomeScreen() }
                 composable(MainDestinations.HISTORY.route) { HistoryScreen() }
