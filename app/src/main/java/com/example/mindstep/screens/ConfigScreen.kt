@@ -226,7 +226,7 @@ fun ConfigScreen() {
                     Column(
                         verticalArrangement = Arrangement.spacedBy(16.dp),
                         modifier = Modifier
-                            .background(Color(0xFFEEEEEE), shape = RoundedCornerShape(12.dp))
+                            .background(MaterialTheme.colorScheme.surfaceVariant, shape = RoundedCornerShape(12.dp))
                             .padding(12.dp)
                             .fillMaxWidth()
                     ) {
@@ -270,7 +270,7 @@ fun ConfigScreen() {
                     Column(
                         verticalArrangement = Arrangement.spacedBy(16.dp),
                         modifier = Modifier
-                            .background(Color(0xFFEEEEEE), shape = RoundedCornerShape(12.dp))
+                            .background(MaterialTheme.colorScheme.surfaceVariant, shape = RoundedCornerShape(12.dp))
                             .padding(16.dp)
                             .fillMaxWidth()
                         ) {
