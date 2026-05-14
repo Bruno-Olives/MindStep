@@ -22,7 +22,10 @@ import androidx.compose.material3.*
 import androidx.compose.runtime.*
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.hapticfeedback.HapticFeedbackType
 import androidx.compose.ui.platform.LocalContext
+import androidx.compose.ui.platform.LocalHapticFeedback
+import com.example.mindstep.utils.LocalHapticEnabled
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
@@ -359,8 +362,14 @@ fun ConfigScreen() {
             }
 
 
+            val haptic = LocalHapticFeedback.current
+            val hapticOn = LocalHapticEnabled.current
+
             Button(
-                onClick = { saveSettings() },
+                onClick = {
+                    if (hapticOn) haptic.performHapticFeedback(HapticFeedbackType.LongPress)
+                    saveSettings()
+                },
                 shape = RoundedCornerShape(8.dp),
                 modifier = Modifier.height(46.dp).fillMaxWidth()
             ) {

@@ -33,7 +33,9 @@ import androidx.compose.runtime.getValue
 import androidx.compose.runtime.remember
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.vector.ImageVector
+import androidx.compose.ui.hapticfeedback.HapticFeedbackType
 import androidx.compose.ui.platform.LocalContext
+import androidx.compose.ui.platform.LocalHapticFeedback
 import androidx.compose.ui.tooling.preview.PreviewScreenSizes
 import androidx.compose.animation.EnterTransition
 import androidx.compose.animation.ExitTransition
@@ -50,6 +52,7 @@ import com.example.mindstep.screens.HistoryScreen
 import com.example.mindstep.screens.HomeScreen
 import com.example.mindstep.screens.NewEntryScreen
 import com.example.mindstep.ui.theme.MindStepTheme
+import com.example.mindstep.utils.LocalHapticEnabled
 import com.example.mindstep.utils.LocalReduceAnimations
 
 class MainActivity : ComponentActivity() {
@@ -64,9 +67,13 @@ class MainActivity : ComponentActivity() {
             val isDark = settings?.darkMode ?: systemDark
 
             val reduceAnimations = settings?.reduceAnimations ?: false
+            val hapticEnabled = settings?.hapticFeedback ?: true
 
             MindStepTheme(darkTheme = isDark) {
-                CompositionLocalProvider(LocalReduceAnimations provides reduceAnimations) {
+                CompositionLocalProvider(
+                    LocalReduceAnimations provides reduceAnimations,
+                    LocalHapticEnabled provides hapticEnabled
+                ) {
                     MindStepApp()
                 }
             }
@@ -153,7 +160,12 @@ fun MindStepApp() {
             },
             floatingActionButton = {
                 if (currentRoute != AppScreen.NewEntry.route) {
-                    FloatingActionButton(onClick = { navController.navigate(AppScreen.NewEntry.route) }) {
+                    val haptic = LocalHapticFeedback.current
+                    val hapticOn = LocalHapticEnabled.current
+                    FloatingActionButton(onClick = {
+                        if (hapticOn) haptic.performHapticFeedback(HapticFeedbackType.LongPress)
+                        navController.navigate(AppScreen.NewEntry.route)
+                    }) {
                         Icon(Icons.Default.Add, contentDescription = "Add")
                     }
                 }

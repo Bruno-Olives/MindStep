@@ -49,7 +49,10 @@ import androidx.compose.material3.Button
 import androidx.compose.runtime.*
 import androidx.compose.ui.draw.rotate
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.hapticfeedback.HapticFeedbackType
 import androidx.compose.ui.platform.LocalContext
+import androidx.compose.ui.platform.LocalHapticFeedback
+import com.example.mindstep.utils.LocalHapticEnabled
 import androidx.compose.ui.semantics.LiveRegionMode
 import androidx.compose.ui.semantics.liveRegion
 import androidx.compose.ui.semantics.semantics
@@ -293,8 +296,14 @@ fun NewEntryScreen(onSaveSuccess: () -> Unit = {}) {
                 }
             }
         }
+        val haptic = LocalHapticFeedback.current
+        val hapticOn = LocalHapticEnabled.current
+
         Button(
-            onClick = { save() },
+            onClick = {
+                if (hapticOn) haptic.performHapticFeedback(HapticFeedbackType.LongPress)
+                save()
+            },
             shape = RoundedCornerShape(8.dp),
             modifier = Modifier.height(46.dp).fillMaxWidth()
         ) {
@@ -316,6 +325,13 @@ fun NewEntryScreen(onSaveSuccess: () -> Unit = {}) {
 
 @Composable
 fun EntryCard (title : String, description: String, labels: List<String>, value: Int, setValue: (Int) -> Unit) {
+    val haptic = LocalHapticFeedback.current
+    val hapticOn = LocalHapticEnabled.current
+
+    fun hapticTick() {
+        if (hapticOn) haptic.performHapticFeedback(HapticFeedbackType.TextHandleMove)
+    }
+
     Card (
         elevation = CardDefaults.cardElevation(8.dp),
         modifier = Modifier.fillMaxWidth()
@@ -371,7 +387,7 @@ fun EntryCard (title : String, description: String, labels: List<String>, value:
                         modifier = Modifier.fillMaxWidth()
                     ) {
                         IconButton(
-                            onClick = { if (value > 1) setValue(value - 1) },
+                            onClick = { if (value > 1) { hapticTick(); setValue(value - 1) } },
                             modifier = Modifier.size(24.dp)
                         ) {
                             Icon(Icons.Default.ArrowBackIosNew, contentDescription = "Diminuir")
@@ -379,7 +395,11 @@ fun EntryCard (title : String, description: String, labels: List<String>, value:
                         @OptIn(ExperimentalMaterial3Api::class)
                         Slider(
                             value = value.toFloat(),
-                            onValueChange = { setValue(it.toInt()) },
+                            onValueChange = { newVal ->
+                                val newInt = newVal.toInt()
+                                if (newInt != value) hapticTick()
+                                setValue(newInt)
+                            },
                             valueRange = 1f..5f,
                             steps = 3,
                             modifier = Modifier.weight(1f),
@@ -392,7 +412,7 @@ fun EntryCard (title : String, description: String, labels: List<String>, value:
                             }
                         )
                         IconButton(
-                            onClick = { if (value < 5) setValue(value + 1) },
+                            onClick = { if (value < 5) { hapticTick(); setValue(value + 1) } },
                             modifier = Modifier.size(24.dp)
                         ) {
                             Icon(Icons.Default.ArrowBackIosNew,
