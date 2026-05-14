@@ -193,6 +193,8 @@ fun HomeScreen() {
         Spacer(Modifier.height(24.dp))
 
         PhysicalActivitySection(monthEntries, lisbonTz)
+
+        Spacer(Modifier.height(64.dp))
     }
 }
 
@@ -210,7 +212,7 @@ private fun MentalWellbeingSection(monthEntries: List<EntryEntity>, timeZone: Ti
             style = MaterialTheme.typography.titleMedium,
             fontWeight = FontWeight.Bold
         )
-        IconButton(onClick = { showInfo = !showInfo }, modifier = Modifier.size(24.dp)) {
+        IconButton(onClick = { showInfo = !showInfo }, modifier = Modifier.size(48.dp)) {
             Icon(
                 Icons.Outlined.Info,
                 contentDescription = "Informações do gráfico",
@@ -218,8 +220,6 @@ private fun MentalWellbeingSection(monthEntries: List<EntryEntity>, timeZone: Ti
             )
         }
     }
-
-    Spacer(Modifier.height(12.dp))
 
     if (monthEntries.isEmpty()) {
         Card(
@@ -457,7 +457,7 @@ private fun PhysicalActivitySection(monthEntries: List<EntryEntity>, timeZone: T
             style = MaterialTheme.typography.titleMedium,
             fontWeight = FontWeight.Bold
         )
-        IconButton(onClick = { showInfo = !showInfo }, modifier = Modifier.size(24.dp)) {
+        IconButton(onClick = { showInfo = !showInfo }, modifier = Modifier.size(48.dp)) {
             Icon(
                 Icons.Outlined.Info,
                 contentDescription = "Informações do gráfico",
@@ -465,8 +465,6 @@ private fun PhysicalActivitySection(monthEntries: List<EntryEntity>, timeZone: T
             )
         }
     }
-
-    Spacer(Modifier.height(12.dp))
 
     if (monthEntries.isEmpty()) {
         Card(

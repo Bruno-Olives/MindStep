@@ -383,12 +383,11 @@ fun EntryCard (title : String, description: String, labels: List<String>, value:
                 ){
                     Row (
                         verticalAlignment = Alignment.CenterVertically,
-                        horizontalArrangement = Arrangement.spacedBy(8.dp),
                         modifier = Modifier.fillMaxWidth()
                     ) {
                         IconButton(
                             onClick = { if (value > 1) { hapticTick(); setValue(value - 1) } },
-                            modifier = Modifier.size(24.dp)
+                            modifier = Modifier.size(48.dp)
                         ) {
                             Icon(Icons.Default.ArrowBackIosNew, contentDescription = "Diminuir")
                         }
@@ -413,7 +412,7 @@ fun EntryCard (title : String, description: String, labels: List<String>, value:
                         )
                         IconButton(
                             onClick = { if (value < 5) { hapticTick(); setValue(value + 1) } },
-                            modifier = Modifier.size(24.dp)
+                            modifier = Modifier.size(48.dp)
                         ) {
                             Icon(Icons.Default.ArrowBackIosNew,
                                 contentDescription = "Aumentar",

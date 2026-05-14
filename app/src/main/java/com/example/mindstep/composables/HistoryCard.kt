@@ -23,6 +23,7 @@ import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.rememberCoroutineScope
+import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.hapticfeedback.HapticFeedbackType
 import androidx.compose.ui.platform.LocalContext
@@ -92,7 +93,8 @@ fun HistoryCard(entry: EntryEntity) {
         Column(modifier = Modifier.padding(12.dp)) {
             Row(
                 horizontalArrangement = Arrangement.SpaceBetween,
-                modifier = Modifier.fillMaxWidth().padding(bottom = 8.dp, top = 8.dp)
+                verticalAlignment = Alignment.CenterVertically,
+                modifier = Modifier.fillMaxWidth().padding(bottom = 8.dp, top = 0.dp)
             ) {
                 Column() {
                     Text(
@@ -108,7 +110,7 @@ fun HistoryCard(entry: EntryEntity) {
                 }
                 IconButton(
                     onClick = { delete() },
-                    modifier = Modifier.size(24.dp),
+                    modifier = Modifier.size(48.dp),
                 ) {
                     Icon(Icons.Default.Delete, contentDescription = "Apagar registo", tint = MaterialTheme.colorScheme.error)
                 }
