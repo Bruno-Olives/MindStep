@@ -66,6 +66,11 @@ import androidx.compose.ui.text.TextStyle
 import com.example.mindstep.data.local.EntryEntity
 import com.example.mindstep.data.local.EntrySettings
 import com.example.mindstep.data.local.MindStepDatabase
+import androidx.compose.material.icons.filled.Settings
+import androidx.compose.material.icons.filled.Sync
+import androidx.compose.material3.CircularProgressIndicator
+import androidx.health.connect.client.PermissionController
+import com.example.mindstep.utils.HealthConnectManager
 import com.example.mindstep.utils.anxietyLabels
 import com.example.mindstep.utils.moodLabels
 import com.example.mindstep.utils.valueColors
@@ -89,6 +94,75 @@ fun NewEntryScreen(onSaveSuccess: () -> Unit = {}) {
 
     val dbSettings by settingsDao.getSettings().collectAsState(initial = EntrySettings())
     val voiceInputEnabled = dbSettings?.voiceInput ?: false
+
+    // Health Connect
+    val healthConnectManager = remember { HealthConnectManager(context) }
+    val isHealthConnectAvailable = remember { healthConnectManager.isAvailable() }
+    var isImporting by remember { mutableStateOf(false) }
+
+    var showHealthConnectHelp by remember { mutableStateOf(false) }
+
+    val permissionLauncher = rememberLauncherForActivityResult(
+        contract = PermissionController.createRequestPermissionResultContract(
+            providerPackageName = "com.google.android.apps.healthdata"
+        )
+    ) { granted ->
+        android.util.Log.d("HealthConnect", "Permission result: $granted")
+        if (granted.containsAll(HealthConnectManager.PERMISSIONS)) {
+            coroutineScope.launch {
+                isImporting = true
+                try {
+                    val data = healthConnectManager.readTodayData()
+                    data.steps?.let { setSteps(it.toString()) }
+                    data.sleepHours?.let { setSleep(it.toString()) }
+                    data.waterGlasses?.let { setWaterGlasses(it.toString()) }
+                    Toast.makeText(context, "Dados importados do Health Connect.", Toast.LENGTH_SHORT).show()
+                } catch (e: Exception) {
+                    android.util.Log.e("HealthConnect", "Error reading data", e)
+                    Toast.makeText(context, "Erro ao ler dados: ${e.message}", Toast.LENGTH_LONG).show()
+                } finally {
+                    isImporting = false
+                }
+            }
+        } else {
+            // Permissions not granted — show help option
+            showHealthConnectHelp = true
+            Toast.makeText(
+                context,
+                "Permissões não concedidas. Tente conceder manualmente nas definições do Health Connect.",
+                Toast.LENGTH_LONG
+            ).show()
+        }
+    }
+
+    fun importHealthData() {
+        coroutineScope.launch {
+            try {
+                if (healthConnectManager.hasPermissions()) {
+                    isImporting = true
+                    try {
+                        val data = healthConnectManager.readTodayData()
+                        data.steps?.let { setSteps(it.toString()) }
+                        data.sleepHours?.let { setSleep(it.toString()) }
+                        data.waterGlasses?.let { setWaterGlasses(it.toString()) }
+                        Toast.makeText(context, "Dados importados do Health Connect.", Toast.LENGTH_SHORT).show()
+                    } catch (e: Exception) {
+                        android.util.Log.e("HealthConnect", "Error reading data", e)
+                        Toast.makeText(context, "Erro ao ler dados: ${e.message}", Toast.LENGTH_LONG).show()
+                    } finally {
+                        isImporting = false
+                    }
+                } else {
+                    android.util.Log.d("HealthConnect", "Launching permission request for: ${HealthConnectManager.PERMISSIONS}")
+                    permissionLauncher.launch(HealthConnectManager.PERMISSIONS)
+                }
+            } catch (e: Exception) {
+                android.util.Log.e("HealthConnect", "Error in importHealthData", e)
+                Toast.makeText(context, "Erro: ${e.message}", Toast.LENGTH_LONG).show()
+                isImporting = false
+            }
+        }
+    }
 
     val speechLauncher = rememberLauncherForActivityResult(
         contract = ActivityResultContracts.StartActivityForResult()
@@ -196,6 +270,50 @@ fun NewEntryScreen(onSaveSuccess: () -> Unit = {}) {
                     .padding(16.dp)
                     .fillMaxWidth()
             ) {
+                if (isHealthConnectAvailable) {
+                    OutlinedButton(
+                        onClick = { importHealthData() },
+                        shape = RoundedCornerShape(8.dp),
+                        modifier = Modifier.fillMaxWidth().height(40.dp),
+                        enabled = !isImporting
+                    ) {
+                        if (isImporting) {
+                            CircularProgressIndicator(
+                                modifier = Modifier.size(18.dp),
+                                strokeWidth = 2.dp
+                            )
+                            Spacer(modifier = Modifier.width(8.dp))
+                            Text("A importar...", fontWeight = FontWeight.Bold)
+                        } else {
+                            Icon(
+                                imageVector = Icons.Default.Sync,
+                                contentDescription = "Importar Health Connect",
+                                modifier = Modifier.size(18.dp)
+                            )
+                            Spacer(modifier = Modifier.width(6.dp))
+                            Text("Importar do Health Connect", fontWeight = FontWeight.Bold)
+                        }
+                    }
+                    if (showHealthConnectHelp) {
+                        OutlinedButton(
+                            onClick = {
+                                healthConnectManager.openHealthConnectSettings(context)
+                            },
+                            shape = RoundedCornerShape(8.dp),
+                            modifier = Modifier.fillMaxWidth().height(40.dp)
+                        ) {
+                            Icon(
+                                imageVector = Icons.Default.Settings,
+                                contentDescription = "Abrir definições",
+                                modifier = Modifier.size(18.dp)
+                            )
+                            Spacer(modifier = Modifier.width(6.dp))
+                            Text("Abrir Definições do Health Connect", fontWeight = FontWeight.Bold,
+                                style = MaterialTheme.typography.labelMedium)
+                        }
+                    }
+                }
+
                 TextInput(
                     value = sleep,
                     onValueChange = setSleep,
