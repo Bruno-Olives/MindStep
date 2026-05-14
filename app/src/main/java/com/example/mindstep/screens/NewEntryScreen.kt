@@ -275,7 +275,8 @@ fun NewEntryScreen(onSaveSuccess: () -> Unit = {}) {
                         onClick = { importHealthData() },
                         shape = RoundedCornerShape(8.dp),
                         modifier = Modifier.fillMaxWidth().height(40.dp),
-                        enabled = !isImporting
+                        enabled = !isImporting,
+                        border = androidx.compose.foundation.BorderStroke(1.dp, MaterialTheme.colorScheme.primary)
                     ) {
                         if (isImporting) {
                             CircularProgressIndicator(
@@ -300,7 +301,8 @@ fun NewEntryScreen(onSaveSuccess: () -> Unit = {}) {
                                 healthConnectManager.openHealthConnectSettings(context)
                             },
                             shape = RoundedCornerShape(8.dp),
-                            modifier = Modifier.fillMaxWidth().height(40.dp)
+                            modifier = Modifier.fillMaxWidth().height(40.dp),
+                            border = androidx.compose.foundation.BorderStroke(1.dp, MaterialTheme.colorScheme.primary)
                         ) {
                             Icon(
                                 imageVector = Icons.Default.Settings,
@@ -358,18 +360,22 @@ fun NewEntryScreen(onSaveSuccess: () -> Unit = {}) {
                         onClick = { voiceRecord() },
                         shape = RoundedCornerShape(8.dp),
                         contentPadding = PaddingValues(horizontal = 12.dp, vertical = 0.dp),
-                        modifier = Modifier.height(36.dp)
+                        modifier = Modifier.height(36.dp),
+                        enabled = voiceInputEnabled,
+                        border = androidx.compose.foundation.BorderStroke(
+                            1.dp,
+                            if (voiceInputEnabled) MaterialTheme.colorScheme.primary
+                            else MaterialTheme.colorScheme.onSurface.copy(alpha = 0.12f)
+                        )
                     ) {
                         Icon(
                             imageVector = Icons.Default.Mic,
                             contentDescription = "Voz",
-                            tint = if (voiceInputEnabled) MaterialTheme.colorScheme.onSurface else MaterialTheme.colorScheme.onSurface.copy(alpha = 0.38f),
                             modifier = Modifier.size(18.dp)
                         )
                         Spacer(modifier = Modifier.width(6.dp))
                         Text(
                             text = "Voz",
-                            color = if (voiceInputEnabled) MaterialTheme.colorScheme.onSurface else MaterialTheme.colorScheme.onSurface.copy(alpha = 0.38f),
                             fontWeight = FontWeight.Bold
                         )
                     }
