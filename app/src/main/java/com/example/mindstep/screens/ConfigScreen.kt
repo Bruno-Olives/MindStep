@@ -295,46 +295,23 @@ fun ConfigScreen() {
             }
 
             SettingsSection(title = "Acessibilidade", icon = Icons.Default.Accessibility) {
-                // Dark mode toggle
-                Row(
-                    modifier = Modifier
-                        .fillMaxWidth()
-                        .padding(vertical = 8.dp),
-                    verticalAlignment = androidx.compose.ui.Alignment.CenterVertically
-                ) {
-                    Icon(
-                        Icons.Default.DarkMode,
-                        contentDescription = null,
-                        modifier = Modifier.size(24.dp),
-                        tint = Color.Gray
-                    )
-                    Column(modifier = Modifier
-                        .weight(1f)
-                        .padding(horizontal = 12.dp)) {
-                        Text(
-                            "Tema",
-                            fontWeight = FontWeight.Medium,
-                            fontSize = 14.sp
-                        )
-                        Text(
-                            when (settings.darkMode) {
-                                null -> "Seguir sistema"
-                                true -> "Modo escuro"
-                                false -> "Modo claro"
-                            },
-                            fontSize = 12.sp,
-                            color = Color.Gray
-                        )
+
+                val systemDark = isSystemInDarkTheme()
+                val isDark = settings.darkMode ?: systemDark
+
+                SettingsSwitchRow(
+                    title = "Tema",
+                    subtitle = when (settings.darkMode) {
+                        null -> "Seguir sistema"
+                        true -> "Modo escuro"
+                        false -> "Modo claro"
+                    },
+                    icon = Icons.Default.DarkMode,
+                    checked = isDark,
+                    onCheckedChange =  { newValue ->
+                        settings = settings.copy(darkMode = newValue)
                     }
-                    val systemDark = isSystemInDarkTheme()
-                    val isDark = settings.darkMode ?: systemDark
-                    Switch(
-                        checked = isDark,
-                        onCheckedChange = { newValue ->
-                            settings = settings.copy(darkMode = newValue)
-                        }
-                    )
-                }
+                )
 
                 SettingsSwitchRow(
                     title = "Reduzir Animações",
