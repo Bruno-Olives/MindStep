@@ -4,6 +4,7 @@ import android.os.Bundle
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
 import androidx.activity.enableEdgeToEdge
+import androidx.compose.foundation.isSystemInDarkTheme
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.padding
 import androidx.compose.material.icons.Icons
@@ -11,39 +12,76 @@ import androidx.compose.material.icons.filled.Add
 import androidx.compose.material.icons.filled.Home
 import androidx.compose.material.icons.filled.Settings
 import androidx.compose.material.icons.filled.History
+import androidx.compose.material.icons.automirrored.filled.ArrowBack
+import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.FloatingActionButton
 import androidx.compose.material3.Icon
+import androidx.compose.material3.IconButton
+import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Text
+import androidx.compose.material3.TopAppBar
+import androidx.compose.material3.TopAppBarDefaults
+import androidx.compose.ui.draw.shadow
+import androidx.compose.ui.text.font.FontWeight
+import androidx.compose.ui.unit.dp
 import androidx.compose.material3.adaptive.navigationsuite.NavigationSuiteScaffold
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.CompositionLocalProvider
+import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
+import androidx.compose.runtime.remember
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.vector.ImageVector
+import androidx.compose.ui.hapticfeedback.HapticFeedbackType
+import androidx.compose.ui.platform.LocalContext
+import androidx.compose.ui.platform.LocalHapticFeedback
 import androidx.compose.ui.tooling.preview.PreviewScreenSizes
+import androidx.compose.animation.EnterTransition
+import androidx.compose.animation.ExitTransition
+import androidx.compose.animation.fadeIn
+import androidx.compose.animation.fadeOut
 import androidx.navigation.NavGraph.Companion.findStartDestination
 import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
 import androidx.navigation.compose.currentBackStackEntryAsState
 import androidx.navigation.compose.rememberNavController
+import com.example.mindstep.data.local.MindStepDatabase
 import com.example.mindstep.screens.ConfigScreen
 import com.example.mindstep.screens.HistoryScreen
 import com.example.mindstep.screens.HomeScreen
 import com.example.mindstep.screens.NewEntryScreen
 import com.example.mindstep.ui.theme.MindStepTheme
+import com.example.mindstep.utils.LocalHapticEnabled
+import com.example.mindstep.utils.LocalReduceAnimations
 
 class MainActivity : ComponentActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         enableEdgeToEdge()
         setContent {
-            MindStepTheme {
-                MindStepApp()
+            val context = LocalContext.current
+            val database = remember { MindStepDatabase.getDatabase(context.applicationContext) }
+            val settings by database.settingsDao().getSettings().collectAsState(initial = null)
+            val systemDark = isSystemInDarkTheme()
+            val isDark = settings?.darkMode ?: systemDark
+
+            val reduceAnimations = settings?.reduceAnimations ?: false
+            val hapticEnabled = settings?.hapticFeedback ?: true
+
+            MindStepTheme(darkTheme = isDark) {
+                CompositionLocalProvider(
+                    LocalReduceAnimations provides reduceAnimations,
+                    LocalHapticEnabled provides hapticEnabled
+                ) {
+                    MindStepApp()
+                }
             }
         }
     }
 }
 
+@OptIn(ExperimentalMaterial3Api::class)
 @PreviewScreenSizes
 @Composable
 fun MindStepApp() {
@@ -86,20 +124,63 @@ fun MindStepApp() {
             }
         }
     ) {
+        val topBarTitle = when (currentRoute) {
+            MainDestinations.DASHBOARD.route -> "MindStep"
+            MainDestinations.HISTORY.route -> "Histórico"
+            MainDestinations.CONFIG.route -> "Configurações"
+            AppScreen.NewEntry.route -> "Novo Registo"
+            else -> "MindStep"
+        }
+
         Scaffold(
             modifier = Modifier.fillMaxSize(),
+            topBar = {
+                TopAppBar(
+                    title = {
+                        Text(
+                            text = topBarTitle,
+                            fontWeight = FontWeight.Bold
+                        )
+                    },
+                    navigationIcon = {
+                        if (currentRoute == AppScreen.NewEntry.route) {
+                            IconButton(onClick = { navController.popBackStack() }) {
+                                Icon(
+                                    Icons.AutoMirrored.Filled.ArrowBack,
+                                    contentDescription = "Voltar"
+                                )
+                            }
+                        }
+                    },
+                    modifier = Modifier.shadow(4.dp),
+                    colors = TopAppBarDefaults.topAppBarColors(
+                        containerColor = MaterialTheme.colorScheme.surfaceContainer
+                    )
+                )
+            },
             floatingActionButton = {
                 if (currentRoute != AppScreen.NewEntry.route) {
-                    FloatingActionButton(onClick = { navController.navigate(AppScreen.NewEntry.route) }) {
+                    val haptic = LocalHapticFeedback.current
+                    val hapticOn = LocalHapticEnabled.current
+                    FloatingActionButton(onClick = {
+                        if (hapticOn) haptic.performHapticFeedback(HapticFeedbackType.LongPress)
+                        navController.navigate(AppScreen.NewEntry.route)
+                    }) {
                         Icon(Icons.Default.Add, contentDescription = "Add")
                     }
                 }
             }
         ) { innerPadding ->
+            val reduceAnimations = LocalReduceAnimations.current
+
             NavHost(
                 navController = navController,
                 startDestination = MainDestinations.DASHBOARD.route,
-                modifier = Modifier.padding(innerPadding)
+                modifier = Modifier.padding(innerPadding),
+                enterTransition = { if (reduceAnimations) EnterTransition.None else fadeIn() },
+                exitTransition = { if (reduceAnimations) ExitTransition.None else fadeOut() },
+                popEnterTransition = { if (reduceAnimations) EnterTransition.None else fadeIn() },
+                popExitTransition = { if (reduceAnimations) ExitTransition.None else fadeOut() }
             ) {
                 composable(MainDestinations.DASHBOARD.route) { HomeScreen() }
                 composable(MainDestinations.HISTORY.route) { HistoryScreen() }

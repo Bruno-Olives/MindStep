@@ -49,7 +49,10 @@ import androidx.compose.material3.Button
 import androidx.compose.runtime.*
 import androidx.compose.ui.draw.rotate
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.hapticfeedback.HapticFeedbackType
 import androidx.compose.ui.platform.LocalContext
+import androidx.compose.ui.platform.LocalHapticFeedback
+import com.example.mindstep.utils.LocalHapticEnabled
 import androidx.compose.ui.semantics.LiveRegionMode
 import androidx.compose.ui.semantics.liveRegion
 import androidx.compose.ui.semantics.semantics
@@ -63,6 +66,11 @@ import androidx.compose.ui.text.TextStyle
 import com.example.mindstep.data.local.EntryEntity
 import com.example.mindstep.data.local.EntrySettings
 import com.example.mindstep.data.local.MindStepDatabase
+import androidx.compose.material.icons.filled.Settings
+import androidx.compose.material.icons.filled.Sync
+import androidx.compose.material3.CircularProgressIndicator
+import androidx.health.connect.client.PermissionController
+import com.example.mindstep.utils.HealthConnectManager
 import com.example.mindstep.utils.anxietyLabels
 import com.example.mindstep.utils.moodLabels
 import com.example.mindstep.utils.valueColors
@@ -86,6 +94,75 @@ fun NewEntryScreen(onSaveSuccess: () -> Unit = {}) {
 
     val dbSettings by settingsDao.getSettings().collectAsState(initial = EntrySettings())
     val voiceInputEnabled = dbSettings?.voiceInput ?: false
+
+    // Health Connect
+    val healthConnectManager = remember { HealthConnectManager(context) }
+    val isHealthConnectAvailable = remember { healthConnectManager.isAvailable() }
+    var isImporting by remember { mutableStateOf(false) }
+
+    var showHealthConnectHelp by remember { mutableStateOf(false) }
+
+    val permissionLauncher = rememberLauncherForActivityResult(
+        contract = PermissionController.createRequestPermissionResultContract(
+            providerPackageName = "com.google.android.apps.healthdata"
+        )
+    ) { granted ->
+        android.util.Log.d("HealthConnect", "Permission result: $granted")
+        if (granted.containsAll(HealthConnectManager.PERMISSIONS)) {
+            coroutineScope.launch {
+                isImporting = true
+                try {
+                    val data = healthConnectManager.readTodayData()
+                    data.steps?.let { setSteps(it.toString()) }
+                    data.sleepHours?.let { setSleep(it.toString()) }
+                    data.waterGlasses?.let { setWaterGlasses(it.toString()) }
+                    Toast.makeText(context, "Dados importados do Health Connect.", Toast.LENGTH_SHORT).show()
+                } catch (e: Exception) {
+                    android.util.Log.e("HealthConnect", "Error reading data", e)
+                    Toast.makeText(context, "Erro ao ler dados: ${e.message}", Toast.LENGTH_LONG).show()
+                } finally {
+                    isImporting = false
+                }
+            }
+        } else {
+            // Permissions not granted — show help option
+            showHealthConnectHelp = true
+            Toast.makeText(
+                context,
+                "Permissões não concedidas. Tente conceder manualmente nas definições do Health Connect.",
+                Toast.LENGTH_LONG
+            ).show()
+        }
+    }
+
+    fun importHealthData() {
+        coroutineScope.launch {
+            try {
+                if (healthConnectManager.hasPermissions()) {
+                    isImporting = true
+                    try {
+                        val data = healthConnectManager.readTodayData()
+                        data.steps?.let { setSteps(it.toString()) }
+                        data.sleepHours?.let { setSleep(it.toString()) }
+                        data.waterGlasses?.let { setWaterGlasses(it.toString()) }
+                        Toast.makeText(context, "Dados importados do Health Connect.", Toast.LENGTH_SHORT).show()
+                    } catch (e: Exception) {
+                        android.util.Log.e("HealthConnect", "Error reading data", e)
+                        Toast.makeText(context, "Erro ao ler dados: ${e.message}", Toast.LENGTH_LONG).show()
+                    } finally {
+                        isImporting = false
+                    }
+                } else {
+                    android.util.Log.d("HealthConnect", "Launching permission request for: ${HealthConnectManager.PERMISSIONS}")
+                    permissionLauncher.launch(HealthConnectManager.PERMISSIONS)
+                }
+            } catch (e: Exception) {
+                android.util.Log.e("HealthConnect", "Error in importHealthData", e)
+                Toast.makeText(context, "Erro: ${e.message}", Toast.LENGTH_LONG).show()
+                isImporting = false
+            }
+        }
+    }
 
     val speechLauncher = rememberLauncherForActivityResult(
         contract = ActivityResultContracts.StartActivityForResult()
@@ -193,6 +270,52 @@ fun NewEntryScreen(onSaveSuccess: () -> Unit = {}) {
                     .padding(16.dp)
                     .fillMaxWidth()
             ) {
+                if (isHealthConnectAvailable) {
+                    OutlinedButton(
+                        onClick = { importHealthData() },
+                        shape = RoundedCornerShape(8.dp),
+                        modifier = Modifier.fillMaxWidth().height(40.dp),
+                        enabled = !isImporting,
+                        border = androidx.compose.foundation.BorderStroke(1.dp, MaterialTheme.colorScheme.primary)
+                    ) {
+                        if (isImporting) {
+                            CircularProgressIndicator(
+                                modifier = Modifier.size(18.dp),
+                                strokeWidth = 2.dp
+                            )
+                            Spacer(modifier = Modifier.width(8.dp))
+                            Text("A importar...", fontWeight = FontWeight.Bold)
+                        } else {
+                            Icon(
+                                imageVector = Icons.Default.Sync,
+                                contentDescription = "Importar Health Connect",
+                                modifier = Modifier.size(18.dp)
+                            )
+                            Spacer(modifier = Modifier.width(6.dp))
+                            Text("Importar do Health Connect", fontWeight = FontWeight.Bold)
+                        }
+                    }
+                    if (showHealthConnectHelp) {
+                        OutlinedButton(
+                            onClick = {
+                                healthConnectManager.openHealthConnectSettings(context)
+                            },
+                            shape = RoundedCornerShape(8.dp),
+                            modifier = Modifier.fillMaxWidth().height(40.dp),
+                            border = androidx.compose.foundation.BorderStroke(1.dp, MaterialTheme.colorScheme.primary)
+                        ) {
+                            Icon(
+                                imageVector = Icons.Default.Settings,
+                                contentDescription = "Abrir definições",
+                                modifier = Modifier.size(18.dp)
+                            )
+                            Spacer(modifier = Modifier.width(6.dp))
+                            Text("Abrir Definições do Health Connect", fontWeight = FontWeight.Bold,
+                                style = MaterialTheme.typography.labelMedium)
+                        }
+                    }
+                }
+
                 TextInput(
                     value = sleep,
                     onValueChange = setSleep,
@@ -237,18 +360,22 @@ fun NewEntryScreen(onSaveSuccess: () -> Unit = {}) {
                         onClick = { voiceRecord() },
                         shape = RoundedCornerShape(8.dp),
                         contentPadding = PaddingValues(horizontal = 12.dp, vertical = 0.dp),
-                        modifier = Modifier.height(36.dp)
+                        modifier = Modifier.height(36.dp),
+                        enabled = voiceInputEnabled,
+                        border = androidx.compose.foundation.BorderStroke(
+                            1.dp,
+                            if (voiceInputEnabled) MaterialTheme.colorScheme.primary
+                            else MaterialTheme.colorScheme.onSurface.copy(alpha = 0.12f)
+                        )
                     ) {
                         Icon(
                             imageVector = Icons.Default.Mic,
                             contentDescription = "Voz",
-                            tint = if (voiceInputEnabled) MaterialTheme.colorScheme.onSurface else MaterialTheme.colorScheme.onSurface.copy(alpha = 0.38f),
                             modifier = Modifier.size(18.dp)
                         )
                         Spacer(modifier = Modifier.width(6.dp))
                         Text(
                             text = "Voz",
-                            color = if (voiceInputEnabled) MaterialTheme.colorScheme.onSurface else MaterialTheme.colorScheme.onSurface.copy(alpha = 0.38f),
                             fontWeight = FontWeight.Bold
                         )
                     }
@@ -293,8 +420,14 @@ fun NewEntryScreen(onSaveSuccess: () -> Unit = {}) {
                 }
             }
         }
+        val haptic = LocalHapticFeedback.current
+        val hapticOn = LocalHapticEnabled.current
+
         Button(
-            onClick = { save() },
+            onClick = {
+                if (hapticOn) haptic.performHapticFeedback(HapticFeedbackType.LongPress)
+                save()
+            },
             shape = RoundedCornerShape(8.dp),
             modifier = Modifier.height(46.dp).fillMaxWidth()
         ) {
@@ -316,6 +449,13 @@ fun NewEntryScreen(onSaveSuccess: () -> Unit = {}) {
 
 @Composable
 fun EntryCard (title : String, description: String, labels: List<String>, value: Int, setValue: (Int) -> Unit) {
+    val haptic = LocalHapticFeedback.current
+    val hapticOn = LocalHapticEnabled.current
+
+    fun hapticTick() {
+        if (hapticOn) haptic.performHapticFeedback(HapticFeedbackType.TextHandleMove)
+    }
+
     Card (
         elevation = CardDefaults.cardElevation(8.dp),
         modifier = Modifier.fillMaxWidth()
@@ -367,19 +507,22 @@ fun EntryCard (title : String, description: String, labels: List<String>, value:
                 ){
                     Row (
                         verticalAlignment = Alignment.CenterVertically,
-                        horizontalArrangement = Arrangement.spacedBy(8.dp),
                         modifier = Modifier.fillMaxWidth()
                     ) {
                         IconButton(
-                            onClick = { if (value > 1) setValue(value - 1) },
-                            modifier = Modifier.size(24.dp)
+                            onClick = { if (value > 1) { hapticTick(); setValue(value - 1) } },
+                            modifier = Modifier.size(48.dp)
                         ) {
                             Icon(Icons.Default.ArrowBackIosNew, contentDescription = "Diminuir")
                         }
                         @OptIn(ExperimentalMaterial3Api::class)
                         Slider(
                             value = value.toFloat(),
-                            onValueChange = { setValue(it.toInt()) },
+                            onValueChange = { newVal ->
+                                val newInt = newVal.toInt()
+                                if (newInt != value) hapticTick()
+                                setValue(newInt)
+                            },
                             valueRange = 1f..5f,
                             steps = 3,
                             modifier = Modifier.weight(1f),
@@ -392,8 +535,8 @@ fun EntryCard (title : String, description: String, labels: List<String>, value:
                             }
                         )
                         IconButton(
-                            onClick = { if (value < 5) setValue(value + 1) },
-                            modifier = Modifier.size(24.dp)
+                            onClick = { if (value < 5) { hapticTick(); setValue(value + 1) } },
+                            modifier = Modifier.size(48.dp)
                         ) {
                             Icon(Icons.Default.ArrowBackIosNew,
                                 contentDescription = "Aumentar",

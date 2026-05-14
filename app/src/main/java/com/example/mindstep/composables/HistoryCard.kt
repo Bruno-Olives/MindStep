@@ -23,9 +23,13 @@ import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.rememberCoroutineScope
+import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.hapticfeedback.HapticFeedbackType
 import androidx.compose.ui.platform.LocalContext
+import androidx.compose.ui.platform.LocalHapticFeedback
 import androidx.compose.ui.text.font.FontWeight
+import com.example.mindstep.utils.LocalHapticEnabled
 import androidx.compose.ui.unit.dp
 import com.example.mindstep.data.local.EntryEntity
 import com.example.mindstep.data.local.MindStepDatabase
@@ -41,6 +45,8 @@ import java.util.TimeZone
 fun HistoryCard(entry: EntryEntity) {
     val context = LocalContext.current
     val coroutineScope = rememberCoroutineScope()
+    val haptic = LocalHapticFeedback.current
+    val hapticOn = LocalHapticEnabled.current
     val database = remember { MindStepDatabase.getDatabase(context.applicationContext) }
     val entryDao = remember(database) { database.entryDao() }
     val locale = remember { Locale.forLanguageTag("pt-PT") }
@@ -67,6 +73,7 @@ fun HistoryCard(entry: EntryEntity) {
     }
 
     fun delete() {
+        if (hapticOn) haptic.performHapticFeedback(HapticFeedbackType.LongPress)
         AlertDialog.Builder(context)
             .setTitle("Apagar registo")
             .setMessage("Tem a certeza que quer apagar este registo?")
@@ -86,7 +93,8 @@ fun HistoryCard(entry: EntryEntity) {
         Column(modifier = Modifier.padding(12.dp)) {
             Row(
                 horizontalArrangement = Arrangement.SpaceBetween,
-                modifier = Modifier.fillMaxWidth().padding(bottom = 8.dp, top = 8.dp)
+                verticalAlignment = Alignment.CenterVertically,
+                modifier = Modifier.fillMaxWidth().padding(bottom = 8.dp, top = 0.dp)
             ) {
                 Column() {
                     Text(
@@ -102,7 +110,7 @@ fun HistoryCard(entry: EntryEntity) {
                 }
                 IconButton(
                     onClick = { delete() },
-                    modifier = Modifier.size(24.dp),
+                    modifier = Modifier.size(48.dp),
                 ) {
                     Icon(Icons.Default.Delete, contentDescription = "Apagar registo", tint = MaterialTheme.colorScheme.error)
                 }
