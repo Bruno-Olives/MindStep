@@ -257,7 +257,8 @@ fun NewEntryScreen(onSaveSuccess: () -> Unit = {}) {
             description = "Avalie o seu nível de ansiedade ou stress",
             labels = anxietyLabels,
             value = anxiety,
-            setValue = setAnxiety
+            setValue = setAnxiety,
+            invertIndicator = true
         )
 
         Card (
@@ -450,13 +451,18 @@ fun NewEntryScreen(onSaveSuccess: () -> Unit = {}) {
 }
 
 @Composable
-fun EntryCard (title : String, description: String, labels: List<String>, value: Int, setValue: (Int) -> Unit) {
+fun EntryCard (title : String, description: String, labels: List<String>, value: Int, setValue: (Int) -> Unit, invertIndicator: Boolean = false) {
     val context = LocalContext.current
     val hapticOn = LocalHapticEnabled.current
 
     fun hapticTick() {
         if (hapticOn) HapticHelper.tick(context)
     }
+
+    // For inverted indicators (e.g. anxiety), high value = bad, so reverse the color/emoji index
+    val colorIndex = if (invertIndicator) (5 - value) else (value - 1)
+    val isPositive = if (invertIndicator) value < 3 else value > 3
+    val isNegative = if (invertIndicator) value > 3 else value < 3
 
     Card (
         elevation = CardDefaults.cardElevation(8.dp),
@@ -485,7 +491,7 @@ fun EntryCard (title : String, description: String, labels: List<String>, value:
                     colors = CardDefaults.cardColors(containerColor = Color.Transparent),
                     modifier = Modifier
                         .background(
-                            Color(valueColors[value - 1].toColorInt()).copy(
+                            Color(valueColors[colorIndex].toColorInt()).copy(
                                 alpha = 0.1f
                             ),
                             shape = MaterialTheme.shapes.small
@@ -493,12 +499,12 @@ fun EntryCard (title : String, description: String, labels: List<String>, value:
                         .padding(12.dp)
 
                 ){
-                    Icon(if(value > 3) Icons.Default.SentimentSatisfiedAlt
-                        else if(value < 3) Icons.Default.SentimentVeryDissatisfied
+                    Icon(if(isPositive) Icons.Default.SentimentSatisfiedAlt
+                        else if(isNegative) Icons.Default.SentimentVeryDissatisfied
                         else Icons.Default.SentimentNeutral,
                         contentDescription = null,
                         Modifier.size(30.dp),
-                        tint = Color(valueColors[value - 1].toColorInt()))
+                        tint = Color(valueColors[colorIndex].toColorInt()))
                 }
                 Spacer(modifier = Modifier.width(16.dp))
                 Column (
