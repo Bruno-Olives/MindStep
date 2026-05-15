@@ -49,9 +49,8 @@ import androidx.compose.material3.Button
 import androidx.compose.runtime.*
 import androidx.compose.ui.draw.rotate
 import androidx.compose.ui.graphics.Color
-import androidx.compose.ui.hapticfeedback.HapticFeedbackType
 import androidx.compose.ui.platform.LocalContext
-import androidx.compose.ui.platform.LocalHapticFeedback
+import com.example.mindstep.utils.HapticHelper
 import com.example.mindstep.utils.LocalHapticEnabled
 import androidx.compose.ui.semantics.LiveRegionMode
 import androidx.compose.ui.semantics.contentDescription
@@ -424,12 +423,11 @@ fun NewEntryScreen(onSaveSuccess: () -> Unit = {}) {
                 }
             }
         }
-        val haptic = LocalHapticFeedback.current
         val hapticOn = LocalHapticEnabled.current
 
         Button(
             onClick = {
-                if (hapticOn) haptic.performHapticFeedback(HapticFeedbackType.LongPress)
+                if (hapticOn) HapticHelper.heavyClick(context)
                 save()
             },
             shape = RoundedCornerShape(8.dp),
@@ -453,11 +451,11 @@ fun NewEntryScreen(onSaveSuccess: () -> Unit = {}) {
 
 @Composable
 fun EntryCard (title : String, description: String, labels: List<String>, value: Int, setValue: (Int) -> Unit) {
-    val haptic = LocalHapticFeedback.current
+    val context = LocalContext.current
     val hapticOn = LocalHapticEnabled.current
 
     fun hapticTick() {
-        if (hapticOn) haptic.performHapticFeedback(HapticFeedbackType.TextHandleMove)
+        if (hapticOn) HapticHelper.tick(context)
     }
 
     Card (

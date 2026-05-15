@@ -33,9 +33,7 @@ import androidx.compose.runtime.getValue
 import androidx.compose.runtime.remember
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.vector.ImageVector
-import androidx.compose.ui.hapticfeedback.HapticFeedbackType
 import androidx.compose.ui.platform.LocalContext
-import androidx.compose.ui.platform.LocalHapticFeedback
 import androidx.compose.ui.tooling.preview.PreviewScreenSizes
 import androidx.compose.animation.EnterTransition
 import androidx.compose.animation.ExitTransition
@@ -52,6 +50,7 @@ import com.example.mindstep.screens.HistoryScreen
 import com.example.mindstep.screens.HomeScreen
 import com.example.mindstep.screens.NewEntryScreen
 import com.example.mindstep.ui.theme.MindStepTheme
+import com.example.mindstep.utils.HapticHelper
 import com.example.mindstep.utils.LocalHapticEnabled
 import com.example.mindstep.utils.LocalReduceAnimations
 
@@ -160,10 +159,10 @@ fun MindStepApp() {
             },
             floatingActionButton = {
                 if (currentRoute != AppScreen.NewEntry.route) {
-                    val haptic = LocalHapticFeedback.current
+                    val context = LocalContext.current
                     val hapticOn = LocalHapticEnabled.current
                     FloatingActionButton(onClick = {
-                        if (hapticOn) haptic.performHapticFeedback(HapticFeedbackType.LongPress)
+                        if (hapticOn) HapticHelper.click(context)
                         navController.navigate(AppScreen.NewEntry.route)
                     }) {
                         Icon(Icons.Default.Add, contentDescription = "Adicionar novo registo")

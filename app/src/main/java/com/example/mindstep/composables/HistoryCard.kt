@@ -25,10 +25,9 @@ import androidx.compose.runtime.remember
 import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.hapticfeedback.HapticFeedbackType
 import androidx.compose.ui.platform.LocalContext
-import androidx.compose.ui.platform.LocalHapticFeedback
 import androidx.compose.ui.text.font.FontWeight
+import com.example.mindstep.utils.HapticHelper
 import com.example.mindstep.utils.LocalHapticEnabled
 import androidx.compose.ui.semantics.semantics
 import androidx.compose.ui.unit.dp
@@ -46,7 +45,6 @@ import java.util.TimeZone
 fun HistoryCard(entry: EntryEntity) {
     val context = LocalContext.current
     val coroutineScope = rememberCoroutineScope()
-    val haptic = LocalHapticFeedback.current
     val hapticOn = LocalHapticEnabled.current
     val database = remember { MindStepDatabase.getDatabase(context.applicationContext) }
     val entryDao = remember(database) { database.entryDao() }
@@ -74,7 +72,7 @@ fun HistoryCard(entry: EntryEntity) {
     }
 
     fun delete() {
-        if (hapticOn) haptic.performHapticFeedback(HapticFeedbackType.LongPress)
+        if (hapticOn) HapticHelper.heavyClick(context)
         AlertDialog.Builder(context)
             .setTitle("Apagar registo")
             .setMessage("Tem a certeza que quer apagar este registo?")
