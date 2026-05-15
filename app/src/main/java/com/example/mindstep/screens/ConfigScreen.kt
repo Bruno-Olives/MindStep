@@ -352,7 +352,7 @@ fun ConfigScreen() {
             ) {
                 Icon(
                     imageVector = Icons.Default.Save,
-                    contentDescription = "Guardar",
+                    contentDescription = null,
                     tint = Color.White,
                     modifier = Modifier.size(18.dp)
                 )

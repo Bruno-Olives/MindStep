@@ -166,7 +166,7 @@ fun MindStepApp() {
                         if (hapticOn) haptic.performHapticFeedback(HapticFeedbackType.LongPress)
                         navController.navigate(AppScreen.NewEntry.route)
                     }) {
-                        Icon(Icons.Default.Add, contentDescription = "Add")
+                        Icon(Icons.Default.Add, contentDescription = "Adicionar novo registo")
                     }
                 }
             }

@@ -47,6 +47,12 @@ import androidx.compose.ui.graphics.nativeCanvas
 import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.text.font.FontWeight
+import androidx.compose.ui.semantics.clearAndSetSemantics
+import androidx.compose.ui.semantics.contentDescription
+import androidx.compose.ui.semantics.semantics
+import androidx.compose.ui.semantics.stateDescription
+import androidx.compose.ui.semantics.LiveRegionMode
+import androidx.compose.ui.semantics.liveRegion
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import com.example.mindstep.data.local.EntryEntity
@@ -212,10 +218,18 @@ private fun MentalWellbeingSection(monthEntries: List<EntryEntity>, timeZone: Ti
             style = MaterialTheme.typography.titleMedium,
             fontWeight = FontWeight.Bold
         )
-        IconButton(onClick = { showInfo = !showInfo }, modifier = Modifier.size(48.dp)) {
+        IconButton(
+            onClick = { showInfo = !showInfo },
+            modifier = Modifier
+                .size(48.dp)
+                .semantics {
+                    stateDescription = if (showInfo) "Aberto" else "Fechado"
+                    contentDescription = if (showInfo) "Fechar informações do gráfico" else "Abrir informações do gráfico"
+                }
+        ) {
             Icon(
                 Icons.Outlined.Info,
-                contentDescription = "Informações do gráfico",
+                contentDescription = null,
                 tint = MaterialTheme.colorScheme.onSurfaceVariant
             )
         }
@@ -283,7 +297,9 @@ private fun MentalWellbeingSection(monthEntries: List<EntryEntity>, timeZone: Ti
     @Composable
     fun MentalInfoCard() {
         Card(
-            modifier = Modifier.fillMaxWidth(),
+            modifier = Modifier
+                .fillMaxWidth()
+                .semantics { liveRegion = LiveRegionMode.Polite },
             colors = CardDefaults.cardColors(
                 containerColor = MaterialTheme.colorScheme.primaryContainer
             ),
@@ -354,7 +370,15 @@ private fun MentalWellbeingSection(monthEntries: List<EntryEntity>, timeZone: Ti
                     )
                 }
 
-                Canvas(modifier = Modifier.fillMaxSize()) {
+                val mentalChartDescription = "Gráfico mensal de bem-estar mental. " +
+                    "Humor: média ${String.format("%.1f", avgMood)} de 5, tendência ${trendLabel(moodTrend)}. " +
+                    "Ansiedade: média ${String.format("%.1f", avgAnxiety)} de 5, tendência ${trendLabel(anxietyTrend)}. " +
+                    "Sono: média ${String.format("%.1f", avgSleep)} horas, tendência ${trendLabel(sleepTrend)}."
+
+                Canvas(modifier = Modifier
+                    .fillMaxSize()
+                    .semantics { contentDescription = mentalChartDescription }
+                ) {
                     val leftPadding = 40f
                     val bottomPadding = 40f
                     val chartWidth = size.width - leftPadding
@@ -457,10 +481,18 @@ private fun PhysicalActivitySection(monthEntries: List<EntryEntity>, timeZone: T
             style = MaterialTheme.typography.titleMedium,
             fontWeight = FontWeight.Bold
         )
-        IconButton(onClick = { showInfo = !showInfo }, modifier = Modifier.size(48.dp)) {
+        IconButton(
+            onClick = { showInfo = !showInfo },
+            modifier = Modifier
+                .size(48.dp)
+                .semantics {
+                    stateDescription = if (showInfo) "Aberto" else "Fechado"
+                    contentDescription = if (showInfo) "Fechar informações do gráfico" else "Abrir informações do gráfico"
+                }
+        ) {
             Icon(
                 Icons.Outlined.Info,
-                contentDescription = "Informações do gráfico",
+                contentDescription = null,
                 tint = MaterialTheme.colorScheme.onSurfaceVariant
             )
         }
@@ -524,7 +556,9 @@ private fun PhysicalActivitySection(monthEntries: List<EntryEntity>, timeZone: T
     @Composable
     fun PhysicalInfoCard() {
         Card(
-            modifier = Modifier.fillMaxWidth(),
+            modifier = Modifier
+                .fillMaxWidth()
+                .semantics { liveRegion = LiveRegionMode.Polite },
             colors = CardDefaults.cardColors(
                 containerColor = MaterialTheme.colorScheme.primaryContainer
             ),
@@ -610,7 +644,14 @@ private fun PhysicalActivitySection(monthEntries: List<EntryEntity>, timeZone: T
                     .fillMaxWidth()
                     .height(200.dp)
             ) {
-                Canvas(modifier = Modifier.fillMaxSize()) {
+                val physicalChartDescription = "Gráfico mensal de atividade física. " +
+                    "Passos: média ${String.format("%.0f", avgSteps)}, tendência ${trendLabel(stepsTrend)}. " +
+                    "Água: média ${String.format("%.1f", avgWater)} copos, tendência ${trendLabel(waterTrend)}."
+
+                Canvas(modifier = Modifier
+                    .fillMaxSize()
+                    .semantics { contentDescription = physicalChartDescription }
+                ) {
                     val leftPadding = 80f
                     val rightPadding = 60f
                     val bottomPadding = 40f
@@ -721,8 +762,14 @@ private fun PhysicalActivitySection(monthEntries: List<EntryEntity>, timeZone: T
 
 @Composable
 private fun ChartLegendItem(color: Color, label: String) {
-    Row(verticalAlignment = Alignment.CenterVertically) {
-        Canvas(modifier = Modifier.size(10.dp)) {
+    Row(
+        verticalAlignment = Alignment.CenterVertically,
+        modifier = Modifier.semantics(mergeDescendants = true) { }
+    ) {
+        Canvas(modifier = Modifier
+            .size(10.dp)
+            .clearAndSetSemantics { }
+        ) {
             drawCircle(color)
         }
         Spacer(Modifier.width(4.dp))
@@ -744,8 +791,18 @@ private fun RowScope.SummaryCard(
     subtitle: String,
     changePercent: Double?
 ) {
+    val changeLabel = when {
+        changePercent == null -> ""
+        changePercent > 0 -> ", aumento de ${String.format("%.0f", kotlin.math.abs(changePercent))} por cento"
+        changePercent < 0 -> ", diminuição de ${String.format("%.0f", kotlin.math.abs(changePercent))} por cento"
+        else -> ", sem alteração"
+    }
     Card(
-        modifier = Modifier.weight(1f),
+        modifier = Modifier
+            .weight(1f)
+            .semantics(mergeDescendants = true) {
+                contentDescription = "$title: $value. $subtitle$changeLabel"
+            },
         shape = RoundedCornerShape(16.dp),
         border = BorderStroke(2.dp, borderColor),
         elevation = CardDefaults.cardElevation(2.dp)
@@ -758,7 +815,7 @@ private fun RowScope.SummaryCard(
             ) {
                 Icon(
                     imageVector = icon,
-                    contentDescription = title,
+                    contentDescription = null,
                     tint = iconColor,
                     modifier = Modifier.size(28.dp)
                 )
@@ -812,9 +869,17 @@ private fun ChangeChip(percent: Double) {
         else -> "↓"
     }
 
+    val changeDescription = when {
+        isPositive -> "Aumento de ${String.format("%.0f", kotlin.math.abs(percent))} por cento"
+        isNeutral -> "Sem alteração"
+        else -> "Diminuição de ${String.format("%.0f", kotlin.math.abs(percent))} por cento"
+    }
     Card(
         shape = RoundedCornerShape(8.dp),
-        colors = CardDefaults.cardColors(containerColor = bg)
+        colors = CardDefaults.cardColors(containerColor = bg),
+        modifier = Modifier.clearAndSetSemantics {
+            contentDescription = changeDescription
+        }
     ) {
         Text(
             text = "$arrow ${String.format("%.0f", kotlin.math.abs(percent))}%",

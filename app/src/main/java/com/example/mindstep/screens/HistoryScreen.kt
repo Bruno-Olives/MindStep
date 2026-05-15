@@ -112,7 +112,7 @@ fun HistoryScreen() {
             ) {
                 Icon(
                     imageVector = Icons.Default.Save,
-                    contentDescription = "Exportar TXT",
+                    contentDescription = null,
                     tint = Color.White,
                     modifier = Modifier.size(18.dp)
                 )
@@ -130,7 +130,7 @@ fun HistoryScreen() {
             ) {
                 Icon(
                     imageVector = Icons.Default.Save,
-                    contentDescription = "Imprimir PDF",
+                    contentDescription = null,
                     tint = Color.White,
                     modifier = Modifier.size(18.dp)
                 )

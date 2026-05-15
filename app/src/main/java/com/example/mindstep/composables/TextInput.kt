@@ -16,6 +16,10 @@ import androidx.compose.material3.TextFieldDefaults
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.semantics.Role
+import androidx.compose.ui.semantics.contentDescription
+import androidx.compose.ui.semantics.role
+import androidx.compose.ui.semantics.semantics
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.input.KeyboardType
 import androidx.compose.ui.unit.dp
@@ -69,7 +73,11 @@ fun TextInput(
                 Box(
                     Modifier
                         .matchParentSize()
-                        .clickable(onClick = onClick)
+                        .clickable(onClickLabel = "Selecionar $label", onClick = onClick)
+                        .semantics {
+                            role = Role.Button
+                            contentDescription = "$label, $value"
+                        }
                 )
             }
         }

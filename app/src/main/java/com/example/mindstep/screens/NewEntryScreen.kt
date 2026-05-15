@@ -54,6 +54,7 @@ import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.platform.LocalHapticFeedback
 import com.example.mindstep.utils.LocalHapticEnabled
 import androidx.compose.ui.semantics.LiveRegionMode
+import androidx.compose.ui.semantics.contentDescription
 import androidx.compose.ui.semantics.liveRegion
 import androidx.compose.ui.semantics.semantics
 import androidx.compose.ui.text.font.FontWeight
@@ -280,7 +281,9 @@ fun NewEntryScreen(onSaveSuccess: () -> Unit = {}) {
                     ) {
                         if (isImporting) {
                             CircularProgressIndicator(
-                                modifier = Modifier.size(18.dp),
+                                modifier = Modifier
+                                    .size(18.dp)
+                                    .semantics { contentDescription = "A carregar" },
                                 strokeWidth = 2.dp
                             )
                             Spacer(modifier = Modifier.width(8.dp))
@@ -384,6 +387,7 @@ fun NewEntryScreen(onSaveSuccess: () -> Unit = {}) {
                     TextField(
                         value = notes.value,
                         onValueChange = { notes.value = it },
+                        label = { Text("Notas") },
                         minLines = 3,
                         maxLines = 5,
                         placeholder = {
@@ -433,7 +437,7 @@ fun NewEntryScreen(onSaveSuccess: () -> Unit = {}) {
         ) {
             Icon(
                 imageVector = Icons.Default.Save,
-                contentDescription = "Guardar",
+                contentDescription = null,
                 tint = Color.White,
                 modifier = Modifier.size(18.dp)
             )
@@ -472,10 +476,7 @@ fun EntryCard (title : String, description: String, labels: List<String>, value:
             )
             Text(
                 text = description,
-                style = MaterialTheme.typography.labelMedium,
-                modifier = Modifier.semantics{
-                    liveRegion = LiveRegionMode.Polite
-                }
+                style = MaterialTheme.typography.labelMedium
             )
             Spacer(modifier = Modifier.height(16.dp))
             Row(
@@ -497,7 +498,7 @@ fun EntryCard (title : String, description: String, labels: List<String>, value:
                     Icon(if(value > 3) Icons.Default.SentimentSatisfiedAlt
                         else if(value < 3) Icons.Default.SentimentVeryDissatisfied
                         else Icons.Default.SentimentNeutral,
-                        contentDescription = labels[value - 1],
+                        contentDescription = null,
                         Modifier.size(30.dp),
                         tint = Color(valueColors[value - 1].toColorInt()))
                 }
@@ -513,7 +514,7 @@ fun EntryCard (title : String, description: String, labels: List<String>, value:
                             onClick = { if (value > 1) { hapticTick(); setValue(value - 1) } },
                             modifier = Modifier.size(48.dp)
                         ) {
-                            Icon(Icons.Default.ArrowBackIosNew, contentDescription = "Diminuir")
+                            Icon(Icons.Default.ArrowBackIosNew, contentDescription = "Diminuir $title")
                         }
                         @OptIn(ExperimentalMaterial3Api::class)
                         Slider(
@@ -525,7 +526,9 @@ fun EntryCard (title : String, description: String, labels: List<String>, value:
                             },
                             valueRange = 1f..5f,
                             steps = 3,
-                            modifier = Modifier.weight(1f),
+                            modifier = Modifier
+                                .weight(1f)
+                                .semantics { contentDescription = "$title: ${labels[value - 1]}, $value de 5" },
                             thumb = {
                                 Box(
                                     modifier = Modifier
@@ -539,12 +542,18 @@ fun EntryCard (title : String, description: String, labels: List<String>, value:
                             modifier = Modifier.size(48.dp)
                         ) {
                             Icon(Icons.Default.ArrowBackIosNew,
-                                contentDescription = "Aumentar",
+                                contentDescription = "Aumentar $title",
                                 modifier = Modifier.rotate(180f)
                             )
                         }
                     }
-                    Text(text = labels[value - 1], fontWeight = FontWeight.ExtraBold)
+                    Text(
+                        text = labels[value - 1],
+                        fontWeight = FontWeight.ExtraBold,
+                        modifier = Modifier.semantics {
+                            liveRegion = LiveRegionMode.Polite
+                        }
+                    )
                 }
             }
         }

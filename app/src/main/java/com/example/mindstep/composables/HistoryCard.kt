@@ -30,6 +30,7 @@ import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.platform.LocalHapticFeedback
 import androidx.compose.ui.text.font.FontWeight
 import com.example.mindstep.utils.LocalHapticEnabled
+import androidx.compose.ui.semantics.semantics
 import androidx.compose.ui.unit.dp
 import com.example.mindstep.data.local.EntryEntity
 import com.example.mindstep.data.local.MindStepDatabase
@@ -112,7 +113,7 @@ fun HistoryCard(entry: EntryEntity) {
                     onClick = { delete() },
                     modifier = Modifier.size(48.dp),
                 ) {
-                    Icon(Icons.Default.Delete, contentDescription = "Apagar registo", tint = MaterialTheme.colorScheme.error)
+                    Icon(Icons.Default.Delete, contentDescription = "Apagar registo de $formattedDate", tint = MaterialTheme.colorScheme.error)
                 }
             }
 
@@ -155,7 +156,9 @@ fun HistoryCard(entry: EntryEntity) {
 @Composable
 fun RowScope.ValueCard (title: String, value: String, subtitle: String = "", isNotes: Boolean = false) {
     Card(
-        modifier = Modifier.weight(1f),
+        modifier = Modifier
+            .weight(1f)
+            .semantics(mergeDescendants = true) { },
         colors = CardDefaults.cardColors(
             containerColor = MaterialTheme.colorScheme.background,
             contentColor = MaterialTheme.colorScheme.onBackground
